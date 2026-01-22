@@ -247,7 +247,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="cmbtiporol" class="form-label">Acción</label>
-                            <select type="select" class="form-select" data-trigger name="record.superior" wire:model.defer="record.superior">
+                            <select type="select" class="form-select" data-trigger name="funcion" wire:model.defer="record.funcion">
                             <option value="">--Seleccione Acción--</option>
                             <option value="0">Entrada</option>
                             <option value="2">Salida Almuerzo</option>

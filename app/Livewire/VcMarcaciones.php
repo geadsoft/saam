@@ -485,16 +485,19 @@ class VcMarcaciones extends Component
 
     function grabaTimbre(){
 
-        TdTimbres::Create([
-            'codigo' => $this -> record['codigo'],
-            'fecha_hora' => $this -> record['fecha'].' '.$this -> record['hora'],
-            'fecha' => $this -> record['fecha'],
-            'hora' => $this -> record['hora'],
-            'funcion' => $this -> record['funcion'],
+        $timbre = TdTimbres::create([
+            'codigo'     => substr($this->record['codigo'], -9),
+            'fecha_hora' => Carbon::parse(
+                $this->record['fecha'].' '.$this->record['hora']
+            ),
+            'fecha'      => $this->record['fecha'],
+            'hora'       => $this->record['hora'],
+            'funcion'    => $this->record['funcion'],
         ]);
 
         $this->dispatch('hide-form');  
         $this->dispatch('msg-grabar');
+        $this->marcaciones();
 
     }
 
