@@ -1,0 +1,332 @@
+<div>
+    <form id="addrubro-form" autocomplete="off" wire:submit.prevent="{{ $showEditModal ? 'updateData' : 'createData' }}">
+        <div class="row">
+            <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="record.descripcion" class="form-label">Descripción</label>
+                                <input type="text" wire:model.defer="record.descripcion" class="form-control" name="record.descripcion"
+                                    placeholder="Ingrese Descripción" required />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="record.tipo" class="form-label">Tipo</label>
+                                <select type="select" class="form-select" data-trigger name="record.tipo" wire:model.defer="record.tipo" required>
+                                <option value="P">Percepción</option>
+                                <option value="D">Deducción</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="record.etiqueta" class="form-label">Etiqueta</label>
+                                <input type="text" wire:model.defer="record.etiqueta" class="form-control" name="record.etiqueta"
+                                    placeholder="Ingrese Descripción" required />
+                            </div>
+
+                            <!--<div>
+                                <label>Product Description</label>
+
+                                <div id="ckeditor-classic">
+                                    <p>Tommy Hilfiger men striped pink sweatshirt. Crafted with cotton. Material composition is 100% organic cotton. This is one of the world’s leading designer lifestyle brands and is internationally recognized for celebrating the essence of classic American cool style, featuring preppy with a twist designs.</p>
+                                    <ul>
+                                        <li>Full Sleeve</li>
+                                        <li>Cotton</li>
+                                        <li>All Sizes available</li>
+                                        <li>4 Different Color</li>
+                                    </ul>
+                                </div>
+                            </div>-->
+                        </div>
+                    </div>
+                    <!-- end card -->
+
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs-custom card-header-tabs border-bottom-0" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-bs-toggle="tab" href="#addproduct-general-info"
+                                        role="tab">
+                                        Base Cálculo
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#addcuenta"
+                                        role="tab">
+                                        Cuentas Contable
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- end card header -->
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="addproduct-general-info" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-sm-6">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="rubro-select">Rubro</label>
+                                                <select type="select" class="form-select" data-trigger name="rubro-select" wire:model.defer="rubros.baserubrorol_id">
+                                                <option value="">Seleccione Rubro</option>
+                                                @foreach ($tblrubros as $rubro)
+                                                    <option value="{{$rubro->id}}">{{$rubro->descripcion}}</option>
+                                                @endforeach                                                
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-sm-6">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="importe-input">Importe</label>
+                                                <input type="number" class="form-control  product-price" id="importe-input" step="0.01" placeholder="0.00" wire:model.defer="rubros.importe">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-sm-6">
+                                             <div class="mb-3">
+                                                <label class="form-label" for="constante-input">Constante</label>
+                                                <input type="number" class="form-control  product-price" id="constante-input" step="0.01" placeholder="0.00" wire:model.defer="rubros.constante">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-sm-6 text-center">
+                                            <div class="mb-3">
+                                             <label class="form-label">-</label>                                     
+                                             <a id="add_base" class ="form-control btn btn-soft-secondary" wire:click="addRubro()" ><i class="ri-add-fill me-1"></i> Agregar</a>
+                                             <!--<button type="button" wire:click="addRubro()" class="btn btn-soft-secondary" id="addrubro-btn"><i class="ri-add-fill me-1"></i> Add
+                                            </button>-->
+                                            </div>
+                                        </div>
+                                        <!-- end col -->
+                                        
+                                    </div>
+                                    
+                                    <ul class="nav nav-tabs nav-tabs-custom nav-success mb-3">
+                                    </ul>
+                                    <div class="table-responsive table-card mb-1">
+                                        <table class="table table-nowrap align-middle" id="orderTable">
+                                            <thead class="text-muted table-light">
+                                                <tr class="text-uppercase">
+                                                    <th class="sort">Descripción</th>
+                                                    <th class="sort">Importe</th>
+                                                    <th class="sort">Constante</th>
+                                                    <th >Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="list form-check-all">
+                                            @foreach ($baseRubros as $record)
+                                            <tr>
+                                                <td> 
+                                                    {{$record['descripcion']}}
+                                                    <!--<input type="text" class="form-control-sm bg-light border-0" value='{{$record['descripcion']}}' disabled/>-->
+                                                </td>
+                                                <td>
+                                                    {{number_format($record['importe'],2)}}
+                                                    <!--<input type="number" class="form-control-sm bg-light border-0 product-price" id="detimporte" step="0.01" placeholder="0.00" value= {{number_format($record['importe'],2)}} disabled>-->
+                                                </td>
+                                                <td>
+                                                    {{number_format($record['constante'],2)}}
+                                                    <!--<input type="number" class="form-control-sm bg-light border-0 product-price" id="detcontante" step="0.01" placeholder="0.00" value={{number_format($record['constante'],2)}} disabled>-->
+                                                </td>
+                                                <td>
+                                                    <ul class="list-inline hstack gap-2 mb-0">
+                                                        <li class="list-inline-item" data-bs-toggle="tooltip"
+                                                            data-bs-trigger="hover" data-bs-placement="top" title="Remove">
+                                                            <a class="text-danger d-inline-block remove-item-btn"
+                                                                data-bs-toggle="modal" href="" wire:click.prevent="delete({{ $record['id'] }})">
+                                                                <i class="ri-delete-bin-5-fill fs-16"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- end row -->
+                                </div>
+                                <!-- end tab-pane -->
+
+                                <div class="tab-pane" id="addcuenta" role="tabpanel">
+                                    <div class="row">
+
+                                    </div>
+                                    <!-- end row -->
+                                </div>
+                                <!-- end tab pane -->
+                            </div>
+                            <!-- end tab content -->
+
+
+
+
+
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                    
+            </div>
+            <!-- end col -->
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Registro</h5>
+                    </div>
+                    <div class="card-body">
+                         <div class="row">
+                        <div class="col-lg-6 col-sm-6">
+                            <div class="form-check form-radio-success mb-3">
+                                <input class="form-check-input" type="radio" name="record.registro" wire:model.defer="record.registro" value="NO">
+                                <label class="form-check-label">
+                                    Novedad
+                                </label>
+                            </div>
+                            <div class="form-check form-radio-warning mb-3">
+                                <input class="form-check-input" type="radio" name="record.registro" wire:model.defer="record.registro" value="PR">
+                                <label class="form-check-label">
+                                    Prestamo
+                                </label>
+                            </div>
+                            <div class="form-check form-radio-info">
+                                <input class="form-check-input" type="radio" name="record.registro" wire:model.defer="record.registro" value="CA">
+                                <label class="form-check-label">
+                                    Calculo Automatico
+                                </label>
+                            </div>
+                            
+                        </div>
+                        <div class="col-lg-6 col-sm-6">
+                            <div class="form-check form-check-secondary mb-3">
+                                <input class="form-check-input" type="checkbox" wire:model.defer="record.regplanilla">
+                                <label class="form-check-label" for="record.regplanilla">
+                                    Planilla/Novedad
+                                </label>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <!-- end card body -->
+                </div>
+                <!-- end card -->
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Impresión Rol</h5>
+                    </div>
+                    <!-- end card body -->
+                    <div class="card-body">
+                        <div class="form-check form-check-success mb-3">
+                            <input class="form-check-input" type="checkbox" wire:model.defer="record.imprimerol1">
+                            <label class="form-check-label" for="record.imprimerol1">
+                                Horizontal
+                            </label>
+                        </div>
+                        <div class="form-check form-check-success mb-3">
+                            <input class="form-check-input" type="checkbox" wire:model.defer="record.imprimerol2">
+                            <label class="form-check-label" for="record.imprimerol2">
+                                Percepción - Deducción
+                            </label>
+                        </div>
+                        <div class="form-check form-check-success">
+                            <input class="form-check-input" type="checkbox"wire:model.defer="record.imprimerol3">
+                            <label class="form-check-label" for="record.imprimerol3">
+                                Comprobante de Pago
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <!-- end card -->
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Formula de Cálculo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="cmbvariable" class="form-label">Variable</label>
+                            <select type="select" class="form-select" data-trigger name="cmbvariable" wire:model.defer="record.variable1">
+                            @foreach ($tblvariables as $variable)
+                                <option value="{{$variable->id}}">{{ $variable->descripcion }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="record.importe" class="form-label">Importe</label>
+                            <input type="number" class="form-control  product-price" id="txtimporte" step="0.000001" placeholder="0.00"  
+                            wire:model.defer="record.importe" required>
+                        </div>
+                        <div class="form-check form-check-success">
+                            <input class="form-check-input" type="checkbox" wire:model.defer="record.grabaprovision">
+                            <label class="form-check-label" for="record.grabaprovision">
+                                Graba Provisión
+                            </label>
+                        </div>
+                    </div>
+                    <!-- end card body -->
+                </div>
+                <!-- end card -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="justify-content-end">
+                            <button type="submit" class="btn btn-success w-sm">Grabar</button>
+                            <a class="btn btn-secondary w-sm" href="/form/rubros"><i class="me-1 align-bottom"></i>Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- end row -->
+    </form>
+    <div wire.ignore.self class="modal fade flip" id="deleteRecord" tabindex="-1" aria-hidden="true" wire:model='selectId'>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-5 text-center">
+                    <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
+                        colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px">
+                    </lord-icon>
+                    <div class="mt-4 text-center">
+                        <h4>¿Está a punto de eliminar el registro? {{ $selectValue }}</h4>
+                        <p class="text-muted fs-15 mb-4">Eliminar el registro afectará toda su 
+                        información de nuestra base de datos.</p>
+                        <div class="hstack gap-2 justify-content-center remove">
+                            <button class="btn btn-link link-success fw-medium text-decoration-none"
+                                data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i>
+                                Cerrar </button>
+                            <button class="btn btn-danger" id="delete-record"  wire:click="deleteData()"> Si,
+                                Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div wire.ignore.self class="modal fade" id="showCuentas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" >
+            <div class="modal-content modal-content border-0">
+                
+                <div class="modal-header p-3 bg-light">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        <span> Consultas de cuentas &nbsp;</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
+                </div>
+                
+                <form autocomplete="off">
+                    
+                    <div class="modal-body">                                        
+                        @livewire('vc-buscar-cuentas',['target'=>'vc-cuenta-contable'])                                    
+                    </div>
+                    <div class="modal-footer">
+                        <div class="hstack gap-2 justify-content-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <!--<button type="button" wire:click.prevent="add()" class="btn btn-success" id="add-btn">Continuar</button>-->
+                        </div>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
