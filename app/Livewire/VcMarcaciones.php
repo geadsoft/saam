@@ -86,6 +86,7 @@ class VcMarcaciones extends Component
         $timbres = TdTimbres::query()
         ->whereBetween('fecha', [$this->filters['startDate'], $this->filters['endDate']])
         ->where('estado','A')
+        //->where('codigo','205712605')
         ->orderBy('codigo')
         ->orderBy('fecha_hora', 'asc')
         ->get()->toArray();
@@ -112,6 +113,8 @@ class VcMarcaciones extends Component
         ORDENAR TIMBRES (MUY IMPORTANTE)
         ================================ */
         $timbres = collect($timbres)->sortBy('fecha_hora');
+
+
 
         foreach ($timbres as $timbre) {
 
@@ -145,12 +148,15 @@ class VcMarcaciones extends Component
             ================================================= */
             if ($accion == 0) {
 
-                /*if (isset($entradaActual[$codigo])) {
-                    $observaciones[$codigo][$fechaTimbre][] =
+                if (isset($entradaActual[$codigo]) && isset($bloques[$codigo][$fechaTrabajo])) {
+                    
+                    if($bloques[$codigo][$fechaTrabajo][0]['entrada']!=""){
+                        $observaciones[$codigo][$fechaTimbre][] =
                         'Entrada duplicada ignorada';
+                        continue;
+                    }
 
-                    continue;
-                }*/
+                }
 
                 $turnoData = $this->obtenerTurnoAsignado($turnosEmpleado, $fechaHoraTimbre);
 
@@ -165,6 +171,7 @@ class VcMarcaciones extends Component
                 $entradaActual[$codigo] = [
                     'fechaTrabajo' => $fechaTrabajo,
                     'turno'        => $turnoAsignado,
+                    'timbre'       => $marcaTimbre,
                 ];
 
                 $bloques[$codigo][$fechaTrabajo][] = [
@@ -203,6 +210,32 @@ class VcMarcaciones extends Component
 
                     $observaciones[$codigo][$fechaTrabajo][] = 'Salida sin entrada';
                     continue;
+                }
+
+                if(isset($entradaActual[$codigo]) && $entradaActual[$codigo]['fechaTrabajo']!=$fechaTimbre){
+
+                    $fechaTrabajo = $fechaTimbre;
+
+                    $turnoData = $this->obtenerTurnoAsignado($turnosEmpleado, $fechaHoraTimbre);
+
+                    if (!$turnoData) {
+                        $observaciones[$codigo][$fechaTimbre][] = 'Sin turno asignado';
+                        continue;
+                    }
+
+                    $turnoAsignado = $turnoData['turno'];
+
+                    // crear bloque huérfano
+                    $bloques[$codigo][$fechaTrabajo][] = [
+                        'entrada' => '',
+                        'salida'  => $marcaTimbre,
+                        'turno'   => $turnoAsignado->id,
+                    ];
+
+                    $observaciones[$codigo][$fechaTrabajo][] = 'Salida sin entrada';
+                    unset($entradaActual[$codigo]);
+                    continue;
+
                 }
 
                 // 🔹 CASO 2: salida normal (con entrada)
@@ -244,7 +277,7 @@ class VcMarcaciones extends Component
         ->when(filled($this->filters['departamento']), fn($q) =>
             $q->where('tm_contratos.departamento_id', $this->filters['departamento'])
         )
-        ->selectRaw('p.id, p.nombres, p.apellidos, right(p.nui,9) as nui, a.descripcion as departamento, c.descripcion as cargo')
+        ->selectRaw('p.id, p.nombres, p.apellidos, right(p.nui,9) as nui, a.descripcion as departamento, c.descripcion as cargo, tm_contratos.sueldo')
         ->orderBy('apellidos')
         ->get();
 
@@ -254,7 +287,8 @@ class VcMarcaciones extends Component
             $personaId = $empleado->id;         
 
             $starDate = Carbon::parse($this->filters['startDate']);
-            $endDate  = Carbon::parse($this->filters['endDate']);
+            $endDate  = Carbon::parse($this->filters['endDate'])->subDay();
+            
             $fecha = $starDate->copy();
 
             $turnosEmpleado = $turnosIndexados[$nui] ?? collect();
@@ -277,6 +311,7 @@ class VcMarcaciones extends Component
                     'nombre' => $empleado->apellidos.' '.$empleado->nombres,
                     'depart' => $empleado->departamento,
                     'cargo'  => $empleado->cargo,
+                    'sueldo' => $empleado->sueldo,
                     'fecha' => date('d/m/Y',strtotime($fecha)),
                     'turnoId' => 0,
                     'turno' => "",
@@ -388,22 +423,28 @@ class VcMarcaciones extends Component
 
                 $turno = $turnosEmpleado->firstWhere('id', $record['turnoId']);
                 $horas = $this->calcularHorasBloque($entrada,$salida,$turno,$fecha);
-                
+                $valorHora = $record['sueldo'] / 240;
+
+                $monto25 = $valorHora * 1.25 * $horas['extra25'];
+                $monto50 = $valorHora * 1.50 * $horas['extra50'];
+                $monto100 = $valorHora * 2.00 * $horas['extra100'];
+
                 $this->tblextras[]=[
                     'linea'  => $fila+1,
                     'codigo' => $record['codigo'],
                     'nombre' => $record['nombre'],
                     'depart' => $record['depart'],
                     'cargo'  => $record['cargo'],
+                    'sueldo' => $record['sueldo'],
                     'fecha' => $record['fecha'],
                     'normales' => $horas['normales'],
                     'he25' => $horas['extra25'],
-                    'monto25' => 0,
+                    'monto25' => $monto25,
                     'he50' => $horas['extra50'],
-                    'monto50' => 0,
+                    'monto50' => $monto50,
                     'he100' => $horas['extra100'],
-                    'monto100' => 0,
-                    'total' => 0,
+                    'monto100' => $monto100,
+                    'total' => $monto25+$monto50+$monto100,
                 ];
             }
 
@@ -417,15 +458,23 @@ class VcMarcaciones extends Component
 
         $marcaEntrada = Carbon::parse($timbreEntrada);
         $marcaSalida  = Carbon::parse($timbreSalida);
-
         $fecha = Carbon::createFromFormat('d/m/Y', trim($fechaTrabajo))->format('Y-m-d');
-        $horaEntrada = Carbon::createFromFormat('H:i:s', trim($turno['entrada']))->format('H:i:s');
 
+        $horaEntrada = Carbon::createFromFormat('H:i:s', trim($turno['entrada']))->format('H:i:s');
+                
         $inicioTurno = Carbon::createFromFormat(
             'Y-m-d H:i:s',
             $fecha . ' ' . $horaEntrada
         );
 
+        if (
+            $marcaEntrada->lt($inicioTurno) &&
+            !($turno['nocturno'] ?? false)
+        ) {
+            // llegó antes del turno → ajustar a hora oficial
+            $marcaEntrada = $inicioTurno->copy();
+        }
+    
         $horaSalida = Carbon::createFromFormat('H:i:s', trim($turno['salida']))->format('H:i:s');
 
         $finTurno = Carbon::createFromFormat(
@@ -467,34 +516,61 @@ class VcMarcaciones extends Component
             'extra100' => 0,
         ];
 
-        // 🔹 TODO ES 100%
-        if ($dias100->contains($diaSemana)) {
-            $horas['extra100'] = intdiv($marcaEntrada->diffInMinutes($marcaSalida),60); //$marcaEntrada->diffInMinutes($marcaSalida) / 60;
-            //return $horas;
-        }
-
-        if ($tipoDia === 'FERIADO') {
-            $horas['extra100'] = intdiv($marcaEntrada->diffInMinutes($marcaSalida),60); //$marcaEntrada->diffInMinutes($marcaSalida) / 60;
-        }
-
         // 🔹 HORAS NORMALES
         $inicioNormal = $marcaEntrada->copy()->max($inicioTurno);
         $finNormal    = $marcaSalida->copy()->min($finTurno);
 
         if ($inicioNormal->lt($finNormal)) {
-            $horas['normales'] = intdiv($inicioNormal->diffInMinutes($finNormal),60);
+            //$horas['normales'] = intdiv($marcaEntrada->diffInMinutes($marcaSalida),60); //intdiv($inicioNormal->diffInMinutes($finNormal),60);
+            $minutos = $marcaEntrada->diffInMinutes($marcaSalida);
+            $horas['normales'] = $minutos / 60;
+        }
+
+        // 🔹 TODO ES 100%
+        if ($dias100->contains($diaSemana)) {
+            $horas['extra100'] = intdiv($inicioNormal->diffInMinutes($finNormal),60);//intdiv($marcaEntrada->diffInMinutes($marcaSalida),60); //$marcaEntrada->diffInMinutes($marcaSalida) / 60;
+            //return $horas;
+        }
+
+        if ($tipoDia === 'FERIADO') {
+            $horas['extra100'] = intdiv($inicioNormal->diffInMinutes($finNormal),60);//intdiv($marcaEntrada->diffInMinutes($marcaSalida),60); //$marcaEntrada->diffInMinutes($marcaSalida) / 60;
         }
 
         // 🔹 DESPUÉS DEL TURNO
         if ($marcaSalida->gt($finTurno)) {
-            $inicio = $marcaEntrada->max($finTurno);
-            $minutosExtra = $inicio->diffInMinutes($marcaSalida);
 
-            // nocturno 50%
-            if ($turno['nocturno'] ?? false) {
-                $horas['extra50'] += $minutosExtra / 60;
-            } else {
-                $horas['extra25'] += $minutosExtra / 60;
+            $inicioExtra = $marcaEntrada->max($finTurno);
+            $finExtra    = $marcaSalida;
+
+            // Punto de cambio a nocturno
+            $inicioNocturno = $finTurno->copy()->setTime(19, 0, 0);
+
+
+
+            /*// TRAMO DIURNO EXTRA (50%)
+            if ($inicioExtra->lt($inicioNocturno)) {
+
+                $finDiurno = $finExtra->lt($inicioNocturno) ? $finExtra : $inicioNocturno;
+                $minutos50 = $inicioExtra->diffInMinutes($finDiurno);
+
+                if ($minutos50 >= 30) {
+                    $horas['extra50'] += ceil($minutos50 / 60);
+                }
+            }*/
+            $horasExtras = max($horas['normales'] - 8, 0);
+            if ($horasExtras > 0) {
+                $horas['extra50'] += $horasExtras;//min($horasExtras, 4);
+            }
+
+            // TRAMO NOCTURNO (25%)
+            if ($finExtra->gt($inicioNocturno)) {
+
+                $inicioNoc = $inicioExtra->gt($inicioNocturno) ? $inicioExtra : $inicioNocturno;
+                $minutos25 = $inicioNoc->diffInMinutes($finExtra);
+
+                if ($minutos25 >= 30) {
+                    $horas['extra25'] +=  min($minutos25 / 60, 4); 
+                }
             }
         }
 
@@ -529,6 +605,7 @@ class VcMarcaciones extends Component
             'fecha'      => $this->record['fecha'],
             'hora'       => $this->record['hora'],
             'funcion'    => $this->record['funcion'],
+            'estado'     => 'A',
         ]);
 
         $this->dispatch('hide-form');  

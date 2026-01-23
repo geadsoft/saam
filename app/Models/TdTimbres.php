@@ -15,7 +15,8 @@ class TdTimbres extends Model
         'fecha_hora',
         'fecha',
         'hora',
-        'funcion'
+        'funcion',
+        'estado',
     ];
 
 

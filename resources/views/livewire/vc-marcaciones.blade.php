@@ -158,6 +158,7 @@
                                                     <th scope="col">Nombre</th>
                                                     <th scope="col">Departamento</th>
                                                     <th scope="col">Cargo</th>
+                                                    <th scope="col">Sueldo</th>
                                                     <th scope="col">Fecha</th>
                                                     <th scope="col">Horas Trabajadas</th>
                                                     <th scope="col">HE 25</th>
@@ -171,7 +172,7 @@
                                             </thead>
                                             <tbody class="list form-check-all">
                                                 @foreach ($tblextras as $fil => $extra)
-
+                                                @if($extra['total']>0)
                                                 <tr id="{{$fil}}" class="detalle">
                                                     <th scope="row">
                                                         <div class="form-check">
@@ -182,18 +183,19 @@
                                                     <td>{{$extra['nombre']}}</td>
                                                     <td>{{$extra['depart']}}</td>
                                                     <td>{{$extra['cargo']}}</td>
+                                                    <td>${{$extra['sueldo']}}</td>
                                                     <td>{{$extra['fecha']}}</td>
-                                                    <td>{{$extra['normales']}}</td>
-                                                    <td>{{$extra['he25']}}</td>
-                                                    <td>{{$extra['monto25']}}</td>
-                                                    <td>{{$extra['he50']}}</td>
-                                                    <td>{{$extra['monto50']}}</td>
-                                                    <td>{{$extra['he100']}}</td>
-                                                    <td>{{$extra['monto100']}}</td>
-                                                    <td>{{$extra['total']}}</td>
+                                                    <td>{{ number_format($extra['normales'], 2) }}</td>
+                                                    <td>{{ number_format($extra['he25'], 2) }}</td>
+                                                    <td>${{number_format($extra['monto25'],2)}}</td>
+                                                    <td>{{ number_format($extra['he50'], 2) }}</td>
+                                                    <td>${{number_format($extra['monto50'],2)}}</td>
+                                                    <td>{{ number_format($extra['he100'], 2) }}</td>
+                                                    <td>${{number_format($extra['monto100'],2)}}</td>
+                                                    <td>${{number_format($extra['total'],2)}}</td>
                                                 </tr>
+                                                @endif
                                                 @endforeach
-
                                             </tbody>
                                         </table>
                                     </div>
