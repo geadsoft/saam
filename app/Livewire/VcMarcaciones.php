@@ -85,6 +85,7 @@ class VcMarcaciones extends Component
 
         $timbres = TdTimbres::query()
         ->whereBetween('fecha', [$this->filters['startDate'], $this->filters['endDate']])
+        ->where('estado','A')
         ->orderBy('codigo')
         ->orderBy('fecha_hora', 'asc')
         ->get()->toArray();
@@ -120,12 +121,36 @@ class VcMarcaciones extends Component
             $marcaTimbre = Carbon::parse($timbre['fecha_hora']);
             $fechaTimbre = $marcaTimbre->toDateString();
 
+            if (
+                isset($entradaActual[$codigo]) &&
+                isset($fechaEntradaActual[$codigo]) &&
+                $fechaEntradaActual[$codigo] !== $fechaTimbre
+            ) {
+                $fechaTrabajoAnterior = $entradaActual[$codigo]['fechaTrabajo'];
+                $ultimoIndex = count($bloques[$codigo][$fechaTrabajoAnterior]) - 1;
+
+                $bloques[$codigo][$fechaTrabajoAnterior][$ultimoIndex]['salida'] = null;
+
+                $observaciones[$codigo][$fechaTrabajoAnterior][] =
+                    'Entrada sin salida (cierre automático por cambio de día)';
+
+                unset($entradaActual[$codigo]);
+                unset($fechaEntradaActual[$codigo]);
+            }
+
             $turnosEmpleado = $turnosIndexados[$codigo] ?? collect();
 
             /* =================================================
             ENTRADA → aquí se determina el TURNO y la FECHA
             ================================================= */
             if ($accion == 0) {
+
+                /*if (isset($entradaActual[$codigo])) {
+                    $observaciones[$codigo][$fechaTimbre][] =
+                        'Entrada duplicada ignorada';
+
+                    continue;
+                }*/
 
                 $turnoData = $this->obtenerTurnoAsignado($turnosEmpleado, $fechaHoraTimbre);
 
@@ -153,7 +178,7 @@ class VcMarcaciones extends Component
             SALIDA → NO se vuelve a buscar turno
             ====================================== */
             if ($accion == 1) {
-
+                
                 // 🔹 CASO 1: salida SIN entrada previa
                 if (!isset($entradaActual[$codigo])) {
 
@@ -185,7 +210,7 @@ class VcMarcaciones extends Component
 
                 $ultimoIndex = count($bloques[$codigo][$fechaTrabajo]) - 1;
 
-                $bloques[$codigo][$fechaTrabajo][$ultimoIndex]['salida'] = $marcaTimbre;
+                $bloques[$codigo][$fechaTrabajo][$ultimoIndex]['salida'] = $marcaTimbre;          
 
                 unset($entradaActual[$codigo]);
             }
@@ -195,10 +220,19 @@ class VcMarcaciones extends Component
         CERRAR BLOQUES SIN SALIDA (OPCIONAL)
         ====================================== */
         foreach ($entradaActual as $codigo => $data) {
+
             $fechaTrabajo = $data['fechaTrabajo'];
             $ultimoIndex = count($bloques[$codigo][$fechaTrabajo]) - 1;
 
-            $bloques[$codigo][$fechaTrabajo][$ultimoIndex]['salida'] = '';
+            if (
+                isset($bloques[$codigo][$fechaTrabajo][$ultimoIndex]) &&
+                empty($bloques[$codigo][$fechaTrabajo][$ultimoIndex]['salida'])
+            ) {
+                $bloques[$codigo][$fechaTrabajo][$ultimoIndex]['salida'] = null;
+
+                $observaciones[$codigo][$fechaTrabajo][] =
+                    'Entrada sin salida (cierre automático fin de procesamiento)';
+            }
         }
 
 
@@ -282,6 +316,7 @@ class VcMarcaciones extends Component
 
     function obtenerTurnoAsignado($turnosEmpleado, Carbon $fechaHoraTimbre)
     {
+           
         foreach ($turnosEmpleado as $turno) {
 
             // validar rango de vigencia del turno
@@ -314,7 +349,6 @@ class VcMarcaciones extends Component
 
             // validar si el timbre pertenece al turno
             if ($fechaHoraTimbre->between($inicioTurno, $finTurno)) {
-
                 return [
                     'turno'        => $turno,
                     'inicioTurno'  => $inicioTurno,
@@ -367,8 +401,8 @@ class VcMarcaciones extends Component
                     'monto25' => 0,
                     'he50' => $horas['extra50'],
                     'monto50' => 0,
-                    'he100' => "",
-                    'monto100' => $horas['extra100'],
+                    'he100' => $horas['extra100'],
+                    'monto100' => 0,
                     'total' => 0,
                 ];
             }
@@ -419,11 +453,13 @@ class VcMarcaciones extends Component
         $tipoDia = $this->tipoDia($fechaTrabajo, $this->feriados);
 
         // Día de la semana
+        
         $diaSemana = strtolower($marcaEntrada->locale('es')->dayName);
 
         // Días 100%
-        $dias100 = collect(explode(',', strtolower($turno['dias_extra'] ?? '')));
-
+        $diasextras =  str_replace(['[', ']', '"', ' '], '', $turno['dias_extra']);
+        $dias100 = collect(explode(',', strtolower($diasextras ?? '')));
+        
         $horas = [
             'normales' => 0,
             'extra25'  => 0,
@@ -433,12 +469,12 @@ class VcMarcaciones extends Component
 
         // 🔹 TODO ES 100%
         if ($dias100->contains($diaSemana)) {
-            $horas['extra100'] = $marcaEntrada->diffInMinutes($marcaSalida) / 60;
+            $horas['extra100'] = intdiv($marcaEntrada->diffInMinutes($marcaSalida),60); //$marcaEntrada->diffInMinutes($marcaSalida) / 60;
             //return $horas;
         }
 
         if ($tipoDia === 'FERIADO') {
-            $horas['extra100'] = $marcaEntrada->diffInMinutes($marcaSalida) / 60;
+            $horas['extra100'] = intdiv($marcaEntrada->diffInMinutes($marcaSalida),60); //$marcaEntrada->diffInMinutes($marcaSalida) / 60;
         }
 
         // 🔹 HORAS NORMALES
