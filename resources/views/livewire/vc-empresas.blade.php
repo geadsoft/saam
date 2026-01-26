@@ -174,7 +174,7 @@
                                     </div>
 
                                     <div class="row g-4">
-                                        <div class="col-lg-6">
+                                        <div class="col-lg-4">
                                             <h5 class="card-title flex-grow-1 mb-3 text-primary fs-14">
                                                 <i class="mdi mdi-account-cash align-middle me-1 text-success"></i>
                                                 Rubros - Aportación Iess
@@ -234,7 +234,7 @@
                                                                 wire:model.defer="record.aporte_secap" required>
                                                         </div>
                                                         <select type="select" class="form-select" data-trigger
-                                                            name="rubro-select" wire:model.defer="record.rubro_secap"
+                                                            name="rubro-select" wire:model.defer="record.rubro_apsecap"
                                                             required>
                                                             <option value="">Seleccione Rubro</option>
                                                             @foreach ($tblrubros as $rubro)
@@ -255,7 +255,7 @@
                                                                 wire:model.defer="record.aporte_iece" required>
                                                         </div>
                                                         <select type="select" class="form-select" data-trigger
-                                                            name="rubro-select" wire:model.defer="record.rubro_iece"
+                                                            name="rubro-select" wire:model.defer="record.rubro_apiece"
                                                             required>
                                                             <option value="">Seleccione Rubro</option>
                                                             @foreach ($tblrubros as $rubro)
@@ -267,7 +267,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-lg-6">
+                                        <div class="col-lg-4">
                                             <h5 class="card-title flex-grow-1 mb-3 text-primary fs-14">
                                                 <i class="mdi mdi-cash-multiple align-middle me-1 text-success"></i>
                                                 Beneficios
@@ -337,10 +337,63 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-lg-4">
+                                            <h5 class="card-title flex-grow-1 mb-3 text-primary fs-14">
+                                                <i class="mdi mdi-currency-usd align-middle me-1 text-success"></i>
+                                                Horas Extras
+                                            </h5>
+                                            <div class="row">
+                                                <div class="col-lg-12 mb-3">
+                                                    <div class="input-group form-group">
+                                                        <label for="extras25" class="input-group-text">H.Extra 25%</label>
+                                                        <select type="select" class="form-select" data-trigger
+                                                            name="rubro-select" wire:model.defer="record.extra25"
+                                                            required>
+                                                            <option value="">Seleccione Rubro</option>
+                                                            @foreach ($tblrubros as $rubro)
+                                                            <option value="{{$rubro->id}}">{{$rubro->descripcion}}
+                                                            </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 mb-3">
+
+                                                    <div class="input-group form-group">
+                                                        <label for="extras50" class="input-group-text">H. Extra 50%</label>
+                                                        <select type="select" class="form-select" data-trigger
+                                                            name="rubro-select" wire:model.defer="record.extra50"
+                                                            required>
+                                                            <option value="">Seleccione Rubro</option>
+                                                            @foreach ($tblrubros as $rubro)
+                                                            <option value="{{$rubro->id}}">{{$rubro->descripcion}}
+                                                            </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-lg-12 mb-3">
+                                                    <div class="input-group form-group">
+                                                        <label class="input-group-text"
+                                                            for="rubro-select">H. Extra 100%</label>
+                                                        <select type="select" class="form-select" data-trigger
+                                                            name="rubro-select" wire:model.defer="record.extra100"
+                                                            required>
+                                                            <option value="">Seleccione Rubro</option>
+                                                            @foreach ($tblrubros as $rubro)
+                                                            <option value="{{$rubro->id}}">{{$rubro->descripcion}}
+                                                            </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="row g-4">
+                                    {{--<div class="row g-4">
                                         @livewire('vc-cuentas-provision')
-                                    </div>
+                                    </div>--}}
                                     </fieldset>
                                 </div>
                             </div>
@@ -495,7 +548,7 @@
     </div>
     <!-- end row -->
 
-    <div wire.ignore.self class="modal fade" id="showCuentas" tabindex="-1" aria-labelledby="exampleModalLabel"
+    {{--<div wire.ignore.self class="modal fade" id="showCuentas" tabindex="-1" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content modal-content border-0">
@@ -522,6 +575,6 @@
 
             </div>
         </div>
-    </div>
+    </div>--}}
 
 </div>

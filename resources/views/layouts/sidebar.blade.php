@@ -479,6 +479,11 @@
                                             </a>
                                         </li>
                                         <li class="nav-item">
+                                            <a class="nav-link menu-link" href="/payroll/horas-extras">
+                                                <i class="mdi mdi-currency-usd"></i> <span>Horas Extras</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
                                             <a class="nav-link menu-link" href="/payroll/nominas">
                                                 <i class="las la-check-circle"></i> <span>Nómina</span>
                                             </a>

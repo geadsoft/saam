@@ -98,33 +98,18 @@
                                                         value="option1">
                                                 </div>
                                             </th>
-                                            @for ($col=0;$col<count($rubros)+3;$col++)
-
-                                                @if ($col>=3)
-                                                    <td>
-                                                    <input type="number" step="0.01"  style="width:80px" class="form-control form-control-sm product-price"           outline: none;}"
-                                                     id="col-{{$col}}" wire:model="tblrecords.{{$fil}}.{{$col}}" />
-                                                    </td>
-                                                @else
-                                                    @switch ($col)
-                                                    @case(1)
-                                                        <td class= "sticky">
-                                                        <input type="text" style="width:100px" class="form-control form-control-sm product-price" id="col-{{$col}}" value="{{$data[$col]}}" disabled/>
-                                                        </td>
-                                                        @break
-                                                    @case(2)
-                                                        <td class= "sticky"> 
-                                                        <input type="text" style="width:230px" class="form-control form-control-sm product-price" id="col-{{$col}}" value="{{$data[$col]}}" disabled/>
-                                                        </td>
-                                                        @break
-                                                    @default
-                                                        <td style="display:none">
-                                                        <input type="text" class="form-control form-control-sm product-price" id="col-{{$col}}" value="{{$data[$col]}}" disabled/>
-                                                        </td>
-                                                    @endswitch
-                                                @endif
-                                                
-                                            @endfor
+                                            <td class= "sticky">
+                                                <input type="text" style="width:100px" class="form-control form-control-sm product-price" id="col-{{$fil}}-nui" value="{{$data['nui']}}" disabled/>
+                                            </td>
+                                            <td class= "sticky">
+                                                <input type="text" style="width:100px" class="form-control form-control-sm product-price" id="col-{{$fil}}-nombre" value="{{$data['nombre']}}" disabled/>
+                                            </td>
+                                            @foreach ($rubros as $rubro)
+                                            <td>
+                                                <input type="number" step="0.01"  style="width:80px" class="form-control form-control-sm product-price"
+                                                id="col-{{$rubro->id}}" wire:model="tblrecords.{{$fil}}.{{$rubro->id}}" />
+                                            </td>
+                                            @endforeach
                                         </tr>
                                     @endforeach
 

@@ -38,7 +38,7 @@ class VcEmpresas extends Component
     public function render()
     {
         $tblrecords = TmCompania::first();
-        $tblrubros  = TmRubrosrol::whereRaw('variable1 >1 or importe>0')->get();
+        $tblrubros  = TmRubrosrol::whereRaw('variable1 >1 or importe>0 or regplanilla = 1')->get();
 
         /*$views = TmCompania::orderBy('id','desc')->first();
         $this->view = $views;*/
@@ -107,9 +107,9 @@ class VcEmpresas extends Component
             'record.aporte_patronal' => 'required',
             'record.rubro_appatronal' => 'required',
             'record.aporte_secap' => 'required',
-            'record.rubro_secap' => 'required',
+            'record.rubro_apsecap' => 'required',
             'record.aporte_iece' => 'required',
-            'record.rubro_iece' => 'required',
+            'record.rubro_apiece' => 'required',
             'record.rubro_freserva' => 'required',
             'record.decimo_tercero' => 'required',
             'record.decimo_cuarto' => 'required',
@@ -138,12 +138,15 @@ class VcEmpresas extends Component
             'aporte_patronal' => $this -> record['aporte_patronal'],
             'rubro_appatronal' => $this -> record['rubro_appatronal'],
             'aporte_secap' => $this -> record['aporte_secap'],
-            'rubro_secap' => $this -> record['rubro_secap'],
+            'rubro_apsecap' => $this -> record['rubro_apsecap'],
             'aporte_iece' => $this -> record['aporte_iece'],
-            'rubro_iece' => $this -> record['rubro_iece'],
+            'rubro_apiece' => $this -> record['rubro_apiece'],
             'rubro_freserva' => $this -> record['rubro_freserva'],
             'decimo_tercero' => $this -> record['decimo_tercero'],
             'decimo_cuarto' => $this -> record['decimo_cuarto'],
+            'extra25' => $this -> record['extra25'],
+            'extra50' => $this -> record['extra50'],
+            'extra100' => $this -> record['extra100'],
             'vacaciones' => $this -> record['vacaciones'],
             'elaborado' => $this -> record['elaborado'],
             'revisado' => $this -> record['revisado'],
@@ -178,9 +181,9 @@ class VcEmpresas extends Component
             'record.aporte_patronal' => 'required',
             'record.rubro_appatronal' => 'required',
             'record.aporte_secap' => 'required',
-            'record.rubro_secap' => 'required',
+            'record.rubro_apsecap' => 'required',
             'record.aporte_iece' => 'required',
-            'record.rubro_iece' => 'required',
+            'record.rubro_apiece' => 'required',
             'record.rubro_freserva' => 'required',
             'record.decimo_tercero' => 'required',
             'record.decimo_cuarto' => 'required',
@@ -208,12 +211,15 @@ class VcEmpresas extends Component
                 'aporte_patronal' => $this -> record['aporte_patronal'],
                 'rubro_appatronal' => $this -> record['rubro_appatronal'],
                 'aporte_secap' => $this -> record['aporte_secap'],
-                'rubro_secap' => $this -> record['rubro_secap'],
+                'rubro_apsecap' => $this -> record['rubro_apsecap'],
                 'aporte_iece' => $this -> record['aporte_iece'],
-                'rubro_iece' => $this -> record['rubro_iece'],
+                'rubro_apiece' => $this -> record['rubro_apiece'],
                 'rubro_freserva' => $this -> record['rubro_freserva'],
                 'decimo_tercero' => $this -> record['decimo_tercero'],
                 'decimo_cuarto' => $this -> record['decimo_cuarto'],
+                'extra25' => $this -> record['extra25'],
+                'extra50' => $this -> record['extra50'],
+                'extra100' => $this -> record['extra100'],
                 'vacaciones' => $this -> record['vacaciones'],
                 'elaborado' => $this -> record['elaborado'],
                 'revisado' => $this -> record['revisado'],

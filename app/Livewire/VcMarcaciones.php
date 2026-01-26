@@ -5,6 +5,7 @@ use App\Models\TmContratos;
 use App\Models\TdTimbres;
 use App\Models\TdEmpleadosTurnos;
 use App\Models\TmArea;
+use App\Models\TdHorasExtras;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -307,6 +308,7 @@ class VcMarcaciones extends Component
 
                 $this->tblrecords[]=[
                     'linea'  => $fila+1,
+                    'personaId' => $personaId,
                     'codigo' => $nui,
                     'nombre' => $empleado->apellidos.' '.$empleado->nombres,
                     'depart' => $empleado->departamento,
@@ -413,6 +415,7 @@ class VcMarcaciones extends Component
         foreach ( $this->tblrecords as $fila => $record){
 
             $codigo  = $record['codigo'];
+            $personaId  = $record['personaId'];
             $turnosEmpleado = $turnosIndexados[$codigo] ?? collect();
 
             if($record['timbre1']!='' && $record['timbre4']!=''){
@@ -431,6 +434,7 @@ class VcMarcaciones extends Component
 
                 $this->tblextras[]=[
                     'linea'  => $fila+1,
+                    'personaId' => $record['personaId'],
                     'codigo' => $record['codigo'],
                     'nombre' => $record['nombre'],
                     'depart' => $record['depart'],
@@ -612,6 +616,65 @@ class VcMarcaciones extends Component
         $this->dispatch('msg-grabar');
         $this->marcaciones();
 
+    }
+
+    public function createData()
+    {
+        if (empty($this->tblextras) || !is_array($this->tblextras)) {
+            return;
+        }
+
+        $usuario = auth()->user()->name;
+        $now = now();
+
+        $detalle = collect($this->tblextras)
+        ->filter(function ($extras) {
+            return ($extras['total'] ?? 0) > 0;
+        })
+        ->map(function ($extras) use ($usuario, $now) {
+            return [
+                'persona_id' => $extras['personaId'],
+                'fecha'      => Carbon::createFromFormat('d/m/Y', $extras['fecha'])->format('Y-m-d'),
+                'horas'      => $extras['normales'] ?? 0,
+                'extra25'    => $extras['he25'] ?? 0,
+                'monto25'    => $extras['monto25'] ?? 0,
+                'extra50'    => $extras['he50'] ?? 0,
+                'monto50'    => $extras['monto50'] ?? 0,
+                'extra100'   => $extras['he100'] ?? 0,
+                'monto100'   => $extras['monto100'] ?? 0,
+                'total'      => $extras['total'],
+                'usuario'    => $usuario,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        })
+        ->values()
+        ->toArray();
+
+        DB::transaction(function () use ($detalle) {
+            TdHorasExtras::upsert(
+                $detalle,
+                ['persona_id', 'fecha'], // clave compuesta
+                [
+                    'horas',
+                    'extra25',
+                    'monto25',
+                    'extra50',
+                    'monto50',
+                    'extra100',
+                    'monto100',
+                    'total',
+                    'usuario',
+                    'updated_at',
+                ]
+            );
+        });
+
+        // Limpia o refresca datos en Livewire
+        $this->reset('tblextras');
+
+        // Evento para UI
+        $this->dispatch('msg-grabar');
     }
 
 }
