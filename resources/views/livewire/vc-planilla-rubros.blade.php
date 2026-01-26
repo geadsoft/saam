@@ -81,7 +81,7 @@
                                         <!--<th class="sort" data-sort="id" scope="col">ID</th>-->
                                         <th class= "sticky" scope="col" style="display:none">Id</th>
                                         <th class= "sticky" scope="col">Nui</th>
-                                        <th class= "sticky" scope="col">Nombre</th>
+                                        <th class= "sticky" scope="col" >Nombre</th>
                                         
                                          @foreach ($rubros as $data)
                                             <th scope="col" style="width: 150px;">{{$data->etiqueta}}</th>
@@ -102,7 +102,7 @@
                                                 <input type="text" style="width:100px" class="form-control form-control-sm product-price" id="col-{{$fil}}-nui" value="{{$data['nui']}}" disabled/>
                                             </td>
                                             <td class= "sticky">
-                                                <input type="text" style="width:100px" class="form-control form-control-sm product-price" id="col-{{$fil}}-nombre" value="{{$data['nombre']}}" disabled/>
+                                                <input type="text" style="width:250px" class="form-control form-control-sm product-price" id="col-{{$fil}}-nombre" value="{{$data['nombre']}}" disabled/>
                                             </td>
                                             @foreach ($rubros as $rubro)
                                             <td>

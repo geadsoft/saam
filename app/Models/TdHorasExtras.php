@@ -11,6 +11,7 @@ class TdHorasExtras extends Model
     protected $table = 'td_horas_extras';
     protected $primaryKey = "id";
     protected $fillable = [
+        'periodorol_id',
         'persona_id',
         'fecha',
         'horas',

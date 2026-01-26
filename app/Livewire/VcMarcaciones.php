@@ -6,6 +6,7 @@ use App\Models\TdTimbres;
 use App\Models\TdEmpleadosTurnos;
 use App\Models\TmArea;
 use App\Models\TdHorasExtras;
+use App\Models\TmPeriodosrol;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,8 @@ class VcMarcaciones extends Component
         'endData' => '',
         'departamento' => '2',
         'tab' => 'timbres',
+        'periodoRolId' => '',
+        'empleadoId' => '',
     ];
 
     public $feriados = [
@@ -58,6 +61,14 @@ class VcMarcaciones extends Component
         ->whereRaw('area_id > 0')
         ->get();
 
+        $periodoRol = TmPeriodosrol::query()
+        ->join('tm_tiposrols as tr','tr.id','=','tm_periodosrols.tiporol_id')
+        ->where('aprobado',0)
+        ->where('remuneracion','M')
+        ->where('procesado',0)
+        ->where('tr.tipoempleado_id',$this->filters['empleadoId'])
+        ->get();
+
         $empleados = TmContratos::query()
         ->join('tm_personas as p','p.id','=','tm_contratos.persona_id')
         ->when(filled($this->filters['departamento']), fn($q) =>
@@ -68,6 +79,7 @@ class VcMarcaciones extends Component
         return view('livewire.vc-marcaciones',[
             'departs' => $departs,
             'empleados' => $empleados,
+            'periodoRol' => $periodoRol,
         ]);
     }
 
@@ -278,7 +290,8 @@ class VcMarcaciones extends Component
         ->when(filled($this->filters['departamento']), fn($q) =>
             $q->where('tm_contratos.departamento_id', $this->filters['departamento'])
         )
-        ->selectRaw('p.id, p.nombres, p.apellidos, right(p.nui,9) as nui, a.descripcion as departamento, c.descripcion as cargo, tm_contratos.sueldo')
+        ->selectRaw('p.id, p.nombres, p.apellidos, right(p.nui,9) as nui, a.descripcion as departamento,
+        c.descripcion as cargo, tm_contratos.sueldo, tm_contratos.tipoempleado_id')
         ->orderBy('apellidos')
         ->get();
 
@@ -348,6 +361,8 @@ class VcMarcaciones extends Component
             }
 
         }
+
+        $this->filters['empleadoId'] = $empleado['tipoempleado_id'];
 
     }
 
@@ -620,6 +635,10 @@ class VcMarcaciones extends Component
 
     public function createData()
     {
+        $this ->validate([
+            'filters.periodoRolId' => 'required',
+        ]);
+    
         if (empty($this->tblextras) || !is_array($this->tblextras)) {
             return;
         }
@@ -633,6 +652,7 @@ class VcMarcaciones extends Component
         })
         ->map(function ($extras) use ($usuario, $now) {
             return [
+                'periodorol_id' =>$this->filters['periodoRolId'],
                 'persona_id' => $extras['personaId'],
                 'fecha'      => Carbon::createFromFormat('d/m/Y', $extras['fecha'])->format('Y-m-d'),
                 'horas'      => $extras['normales'] ?? 0,
@@ -656,6 +676,7 @@ class VcMarcaciones extends Component
                 $detalle,
                 ['persona_id', 'fecha'], // clave compuesta
                 [
+                    'periodorol_id',
                     'horas',
                     'extra25',
                     'monto25',

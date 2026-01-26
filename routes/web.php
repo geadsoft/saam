@@ -43,7 +43,6 @@ Route::get('/rrhh/horarios',[App\Http\Controllers\RecursosHumanosController::cla
 Route::get('/rrhh/turnos',[App\Http\Controllers\RecursosHumanosController::class, 'turnos'])->name('turnos');
 Route::get('/rrhh/asignar-turnos',[App\Http\Controllers\RecursosHumanosController::class, 'asignarturnos'])->name('asignarturnos');
 
-
 Route::get('/payroll/panel',[App\Http\Controllers\RecursosHumanosController::class, 'panel'])->name('panel');
 Route::get('/payroll/tiposrol',[App\Http\Controllers\RecursosHumanosController::class, 'tipos_rol'])->name('tipos_rol');
 Route::get('/payroll/assign-rubros',[App\Http\Controllers\RecursosHumanosController::class, 'asignar_rubros'])->name('asignar_rubros');

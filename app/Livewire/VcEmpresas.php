@@ -40,9 +40,6 @@ class VcEmpresas extends Component
         $tblrecords = TmCompania::first();
         $tblrubros  = TmRubrosrol::whereRaw('variable1 >1 or importe>0 or regplanilla = 1')->get();
 
-        /*$views = TmCompania::orderBy('id','desc')->first();
-        $this->view = $views;*/
-
         $this->record  = $tblrecords->toArray();
         
         return view('livewire.vc-empresas',[
@@ -66,25 +63,11 @@ class VcEmpresas extends Component
 
     }
 
-    /*public function delete( $id ){
-        
-        $this->selectId = $id;
-        $this->dispatch('show-delete');
-
-    }*/
-
     public function buscarCuenta(){
         
         $this->dispatch('show-form');
 
     }
-
-    /*public function view( $id ){
-        
-        $this->view = TmCompania::find($id)->toArray();
-
-    }*/
-
 
     public function createData(){
         

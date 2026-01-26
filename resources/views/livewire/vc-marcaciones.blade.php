@@ -143,6 +143,14 @@
                         <div class="tab-pane fade {{ $this->filters['tab'] == 'extras' ? 'show active' : '' }}" id="tab-horasextras" role="tabpanel">
                             <div class="table-responsive">
                                 <div class="card-body">
+                                    <div class="col-md-3">
+                                        <select type="select" class="form-select mb-3" data-trigger id="cmbtiporol" wire:model.defer="filters.periodoRolId" required>
+                                            <option value="">Seleccione Periodo</option>
+                                            @foreach ($periodoRol as $periodo)
+                                                <option value="{{$periodo->id}}">{{$periodo->tiporol->descripcion}} {{date('d/m/Y', strtotime($periodo->fechaini))}} - {{date('d/m/Y', strtotime($periodo->fechafin))}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div style="overflow-x:auto;">
                                         <table class="table table-sm table-nowrap align-middle" style="width:100%">
                                             <thead class="table-light">

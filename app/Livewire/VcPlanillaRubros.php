@@ -111,41 +111,6 @@ class VcPlanillaRubros extends Component
             }
 
         }
-
-       
-        /*$campo="";
-        $this->totpersona = count($this->personas);
-        
-        for ($fila=0; $fila<count($this->personas);$fila++){
-            $campo = '0,1,2';
-            for ($columna=0;$columna<count($this->rubros)+3;$columna++){
-                $campo = $campo . ',' . strval( $columna+3);
-            }
-            $recno = [
-                $fila => $campo 
-            ];
-            array_push($this->tblrecords,$recno);
-        }
-       
-        $this->row = [$campo];
-               
-        foreach ($this-> personas as $index => $data)
-        {
-            $this->tblrecords[$index][0] = $data->persona_id;
-            $this->tblrecords[$index][1] = $data->nui;
-            $this->tblrecords[$index][2] = $data->apellidos.' '.$data->nombres;
-
-            for ($columna=0;$columna<count($this->rubros)+3;$columna++){
-                if ($columna>=3) {
-                    $this->tblrecords[$index][$columna] = 0.00;
-                    $this->row[$columna] = 0.00;
-                }
-            }            
-        }*/
-
-        $this->row[0] = "";
-        $this->row[1] = "";
-        $this->row[2] = "";
         
         $this->loadPlanilla();
     }
@@ -181,22 +146,6 @@ class VcPlanillaRubros extends Component
 
             $this->tblrecords[$personaId][$rubroId] = $data->valor;
         }
-
-    
-        /*foreach ($this-> personas as $index => $data)
-        {
-            $planilla = TdPlanillaRubros::where([
-                ['persona_id',$data->persona_id],
-                ['tiposrol_id',$this->tiporolId],
-                ['periodosrol_id',$this->periodoId],
-            ])->get();
-            
-            /foreach ($planilla as $index2 => $recno)
-            {
-                $this->tblrecords[$index][$index2+3] = $recno['valor'];
-            }
-            
-        }*/
 
     }
 

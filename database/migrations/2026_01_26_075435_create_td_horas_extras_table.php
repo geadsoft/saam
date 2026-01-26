@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('td_horas_extras', function (Blueprint $table) {
             $table->id();
-            $table->biginteger('persona_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('periodorol_id')->unsigned();
+            $table->unsignedBigInteger('persona_id')->unsigned()->nullable();
             $table->datetime('fecha')->nullable();
             $table->decimal('horas',5,2);
             $table->decimal('extra25',5,2);
@@ -25,6 +26,9 @@ return new class extends Migration
             $table->double('total',14,2);
             $table->string('usuario',50);
             $table->timestamps();
+
+            $table->foreign('persona_id')->references('id')->on('tm_personas');
+            $table->foreign('periodorol_id')->references('id')->on('tm_periodosrols');
         });
     }
 
