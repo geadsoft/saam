@@ -67,6 +67,7 @@ class VcMarcaciones extends Component
         ->where('remuneracion','M')
         ->where('procesado',0)
         ->where('tr.tipoempleado_id',$this->filters['empleadoId'])
+        ->select('tm_periodosrols.*')
         ->get();
 
         $empleados = TmContratos::query()
@@ -127,12 +128,12 @@ class VcMarcaciones extends Component
         ================================ */
         $timbres = collect($timbres)->sortBy('fecha_hora');
 
-
-
         foreach ($timbres as $timbre) {
 
-            $codigo = $timbre['codigo'];          // NUI
-            $accion = $timbre['funcion'];         // 0 = entrada, 1 = salida
+            $codigo  = $timbre['codigo'];          // NUI
+            $accion  = $timbre['funcion'];         // 0 = entrada, 1 = salida
+            $tmanual = is_null($timbre['created_at']) ? 'N' : 'S';
+
             $fechaHoraTimbre = Carbon::parse($timbre['fecha']);
             $marcaTimbre = Carbon::parse($timbre['fecha_hora']);
             $fechaTimbre = $marcaTimbre->toDateString();
@@ -188,7 +189,9 @@ class VcMarcaciones extends Component
                 ];
 
                 $bloques[$codigo][$fechaTrabajo][] = [
+                    'emanual' => $tmanual,
                     'entrada' => $marcaTimbre,
+                    'smanual' => '',
                     'salida'  => '',
                     'turno'   => $turnoAsignado->id,
                 ];
@@ -216,7 +219,9 @@ class VcMarcaciones extends Component
 
                     // crear bloque huérfano
                     $bloques[$codigo][$fechaTrabajo][] = [
+                        'emanual' => '',
                         'entrada' => '',
+                        'smanual' => $tmanual,
                         'salida'  => $marcaTimbre,
                         'turno'   => $turnoAsignado->id,
                     ];
@@ -240,7 +245,9 @@ class VcMarcaciones extends Component
 
                     // crear bloque huérfano
                     $bloques[$codigo][$fechaTrabajo][] = [
+                        'emanual' => '',
                         'entrada' => '',
+                        'smanual' => $tmanual,
                         'salida'  => $marcaTimbre,
                         'turno'   => $turnoAsignado->id,
                     ];
@@ -256,11 +263,13 @@ class VcMarcaciones extends Component
 
                 $ultimoIndex = count($bloques[$codigo][$fechaTrabajo]) - 1;
 
+                $bloques[$codigo][$fechaTrabajo][$ultimoIndex]['smanual'] = $tmanual;
                 $bloques[$codigo][$fechaTrabajo][$ultimoIndex]['salida'] = $marcaTimbre;          
 
                 unset($entradaActual[$codigo]);
             }
         }
+              
 
         /* ======================================
         CERRAR BLOQUES SIN SALIDA (OPCIONAL)
@@ -330,12 +339,14 @@ class VcMarcaciones extends Component
                     'fecha' => date('d/m/Y',strtotime($fecha)),
                     'turnoId' => 0,
                     'turno' => "",
+                    'emanual' => "",
                     'entrada' => "",
                     'timbre1' => "",
                     'salalim' => "", 
                     'timbre2' => "",
                     'entalim' => "",
                     'timbre3' => "",
+                    'smanual' => "",
                     'salida'  => "",
                     'timbre4' => "",
                 ];
@@ -352,7 +363,9 @@ class VcMarcaciones extends Component
                 }
 
                 if(isset($bloques[$nui][$dia])){
+                    $this->tblrecords[$index]['emanual']= $bloques[$nui][$dia][0]['emanual'];
                     $this->tblrecords[$index]['timbre1']= $bloques[$nui][$dia][0]['entrada'];
+                    $this->tblrecords[$index]['smanual']= $bloques[$nui][$dia][0]['smanual'];
                     $this->tblrecords[$index]['timbre4']= $bloques[$nui][$dia][0]['salida'];
                 }
 

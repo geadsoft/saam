@@ -66,6 +66,7 @@ class VcPlanillaRubros extends Component
             DB::raw('SUM(COALESCE(monto100,0)) as monto100'),
             DB::raw('SUM(COALESCE(monto25,0) + COALESCE(monto50,0) + COALESCE(monto100,0)) as total')
         )
+        ->where('periodorol_id',$this->periodoId)
         ->groupBy('persona_id')
         ->get()
         ->keyBy('persona_id');        

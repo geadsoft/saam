@@ -122,15 +122,22 @@
                                                     <td>{{$data['fecha']}}</td>
                                                     <td>{{$data['turno']}}</td>
                                                     <td>{{$data['entrada']}}</td>
-                                                    <td>{{ $data['timbre1'] ? \Carbon\Carbon::parse($data['timbre1'])->format('H:i:s') : '' }}
-                                                    </td>
+                                                    @if($data['emanual'] == 'S')
+                                                    <td>{{ $data['timbre1'] ? \Carbon\Carbon::parse($data['timbre1'])->format('H:i:s') : '' }}<i class="ri-asterisk text-danger ms-1"title="Timbre manual"></td>
+                                                    @else
+                                                    <td>{{ $data['timbre1'] ? \Carbon\Carbon::parse($data['timbre1'])->format('H:i:s') : '' }}</td>
+                                                    @endif
                                                     <td>{{$data['salalim']}}</td>
                                                     <td>{{$data['timbre2']}}</td>
                                                     <td>{{$data['entalim']}}</td>
                                                     <td>{{$data['timbre3']}}</td>
                                                     <td>{{$data['salida']}}</td>
-                                                    <td>{{ $data['timbre4'] ? \Carbon\Carbon::parse($data['timbre4'])->format('H:i:s') : '' }}
-                                                    </td>
+                                                    @if($data['smanual'] == 'S')
+                                                    <td>{{ $data['timbre4'] ? \Carbon\Carbon::parse($data['timbre4'])->format('H:i:s') : '' }}<i class="ri-asterisk text-danger ms-1"title="Timbre manual"></i></td>
+                                                    @else
+                                                    <td>{{ $data['timbre4'] ? \Carbon\Carbon::parse($data['timbre4'])->format('H:i:s') : '' }}</td>
+                                                    @endif
+                                                    
                                                 </tr>
                                                 @endforeach
 
@@ -143,13 +150,29 @@
                         <div class="tab-pane fade {{ $this->filters['tab'] == 'extras' ? 'show active' : '' }}" id="tab-horasextras" role="tabpanel">
                             <div class="table-responsive">
                                 <div class="card-body">
-                                    <div class="col-md-3">
-                                        <select type="select" class="form-select mb-3" data-trigger id="cmbtiporol" wire:model.defer="filters.periodoRolId" required>
-                                            <option value="">Seleccione Periodo</option>
-                                            @foreach ($periodoRol as $periodo)
-                                                <option value="{{$periodo->id}}">{{$periodo->tiporol->descripcion}} {{date('d/m/Y', strtotime($periodo->fechaini))}} - {{date('d/m/Y', strtotime($periodo->fechafin))}}</option>
-                                            @endforeach
-                                        </select>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <label for="cmbtiporol" class="col-md-2 col-form-label fw-semibold">
+                                                Rol de Pago 
+                                            </label>
+                                            <div class="col-md-6 mb-3">
+                                                <select
+                                                    id="cmbtiporol"
+                                                    class="form-select"
+                                                    wire:model.defer="filters.periodoRolId"
+                                                    required>
+                                                    <option value="">--Seleccione Periodo--</option>
+                                                    @foreach ($periodoRol as $periodo)
+                                                        <option value="{{ $periodo->id }}">
+                                                            {{ $periodo->tiporol->descripcion }}
+                                                            {{ date('d/m/Y', strtotime($periodo->fechaini)) }}
+                                                            -
+                                                            {{ date('d/m/Y', strtotime($periodo->fechafin)) }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div style="overflow-x:auto;">
                                         <table class="table table-sm table-nowrap align-middle" style="width:100%">

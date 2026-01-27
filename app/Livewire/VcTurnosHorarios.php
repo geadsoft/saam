@@ -26,7 +26,7 @@ class VcTurnosHorarios extends Component
         'miercoles' => 'Miércoles',
         'jueves' => 'Jueves',
         'viernes' => 'Viernes',
-        'sabado' => 'Sábado',
+        'sábado' => 'Sábado',
         'domingo' => 'Domingo',
     ];
 
