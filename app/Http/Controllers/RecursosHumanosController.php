@@ -166,4 +166,9 @@ class RecursosHumanosController extends Controller
         return view('rrhh/horasextras');
     }
 
+    public function permisos()
+    {
+        return view('rrhh/permisos');
+    }
+
 }   

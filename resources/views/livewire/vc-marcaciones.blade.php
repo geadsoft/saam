@@ -258,11 +258,10 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="empleado" class="form-label">Empleado</label>
-                            <select class="form-select" data-choices data-choices-search-false
-                                name="choices-single-default" id="cmbnivel" wire:model.defer="record.codigo">
+                            <select class="form-select" id="cmbpersona" wire:model.defer="record.personaId">
                                 <option value="" selected>--Seleccione Empleado--</option>
                                 @foreach ($empleados as $empleado)
-                                <option value="{{$empleado->nui}}">{{$empleado->apellidos}} {{$empleado->nombres}}</option>
+                                <option value="{{$empleado->id}}">{{$empleado->apellidos}} {{$empleado->nombres}}</option>
                                 @endforeach
                             </select>
                         </div>    

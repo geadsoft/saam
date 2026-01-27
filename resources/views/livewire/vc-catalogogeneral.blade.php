@@ -61,43 +61,12 @@
                         <!--end row-->
                     </form>
                 </div>
-                <div class="card-body pt-0">
-                    <div>
-                        <ul class="nav nav-tabs nav-tabs-custom nav-success mb-3" role="tablist">
-                            <!--<li class="nav-item">
-                                <a class="nav-link active All py-3" data-bs-toggle="tab" id="All" href="#home1" role="tab"
-                                    aria-selected="true">
-                                    <i class="ri-store-2-fill me-1 align-bottom"></i> All Orders
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 Delivered" data-bs-toggle="tab" id="Delivered" href="#delivered"
-                                    role="tab" aria-selected="false">
-                                    <i class="ri-checkbox-circle-line me-1 align-bottom"></i> Delivered
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 Pickups" data-bs-toggle="tab" id="Pickups" href="#pickups"
-                                    role="tab" aria-selected="false">
-                                    <i class="ri-truck-line me-1 align-bottom"></i> Pickups <span
-                                        class="badge bg-danger align-middle ms-1">2</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 Returns" data-bs-toggle="tab" id="Returns" href="#returns"
-                                    role="tab" aria-selected="false">
-                                    <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Returns
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link py-3 Cancelled" data-bs-toggle="tab" id="Cancelled" href="#cancelled"
-                                    role="tab" aria-selected="false">
-                                    <i class="ri-close-circle-line me-1 align-bottom"></i> Cancelled
-                                </a>
-                            </li>-->
-                        </ul>
 
-                        <div class="table-responsive table-card mb-1">
+                <div class="card-body">
+                    <div class="mb-3">
+                        
+
+                        <div class="table-responsive mb-1">
                             <table class="table table-nowrap align-middle" id="orderTable">
                                 <thead class="text-muted table-light">
                                     <tr class="text-uppercase">
@@ -107,12 +76,12 @@
                                                     value="option">
                                             </div>
                                         </th>-->
-                                        <th class="sort" data-sort="id"> ID</th>
-                                        <th class="sort" data-sort="superior">Superior</th>
-                                        <th class="sort" data-sort="codigo"> Código</th>
-                                        <th class="sort" data-sort="descripcion">Descripción</th>
-                                        <th class="sort" data-sort="estado">Estado</th>
-                                        <th class="sort" data-sort="accion">Acción</th>
+                                        <th> ID</th>
+                                        <th>Superior</th>
+                                        <th> Código</th>
+                                        <th>Descripción</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
                                         
                                     </tr>
                                 </thead>
@@ -187,7 +156,7 @@
 
                     </div>
 
-                    <div wire.ignore.self class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div wire:ignore.self class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" >
                             <div class="modal-content">
                                 

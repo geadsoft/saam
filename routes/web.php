@@ -56,6 +56,7 @@ Route::get('/payroll/nominas',[App\Http\Controllers\RecursosHumanosController::c
 Route::get('/rrhh/marcaciones',[App\Http\Controllers\RecursosHumanosController::class, 'marcaciones'])->name('marcaciones');
 Route::get('/payroll/comprobante/{id},{tipo}',[App\Http\Controllers\RecursosHumanosController::class, 'comprobante'])->name('comprobante');
 Route::get('/payroll/horas-extras',[App\Http\Controllers\RecursosHumanosController::class, 'hextras'])->name('hextras');
+Route::get('/rrhh/permisos',[App\Http\Controllers\RecursosHumanosController::class, 'permisos'])->name('permisos');
 
 Route::get('/bascula/panel',[App\Http\Controllers\BasculaController::class, 'panel'])->name('panel');
 Route::get('/bascula/flujo-negocio',[App\Http\Controllers\BasculaController::class, 'panel_negocio'])->name('panel_negocio');

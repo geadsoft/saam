@@ -527,6 +527,16 @@
                                 </div>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link menu-link" href="/rrhh/vacaciones">
+                                    <i class="mdi mdi-airplane"></i> <span>Vacaciones</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu-link" href="/rrhh/permisos">
+                                    <i class="mdi mdi-timeline-check-outline"></i> <span>Permisos</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link menu-link" href="#sidebarParametrosNomina" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarParametrosNomina">
                                     <i class="ri-settings-3-line"></i> <span>Configuración</span>
                                 </a>
