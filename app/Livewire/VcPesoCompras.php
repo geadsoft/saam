@@ -103,7 +103,6 @@ class VcPesoCompras extends Component
                 $lecturas->update([
                     'valor' => 0
                 ]);
-
             }
 
         }
