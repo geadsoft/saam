@@ -91,3 +91,4 @@ Route::get('/peso_compra/pdf/descargar/{id}', [ImpresionController::class, 'peso
 Route::get('/certificado/pdf/{tipo},{id}', [ImpresionController::class, 'certificado_verPdf'])->name('Certificado.pdf');
 
 Route::post('import-data-excel',[VcImportExcel::class, 'import'])->name('import.excel');
+

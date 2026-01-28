@@ -55,6 +55,15 @@ class VcMarcaciones extends Component
         $this->fecha = date('Y-m-d',strtotime($ldate));
     }
 
+    public function getTimbres() {
+       
+        $response = Http::withHeaders([
+            'X-API-KEY' => env('LOCAL_SYNC_API_KEY')
+        ])->get('http://181.198.111.178/api-erp/api/leer-marcaciones');
+
+        dd($response->json());
+    }
+
     public function render()
     {
         $departs  = TmArea::query()

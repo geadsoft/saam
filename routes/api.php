@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\LecturaCom;
+use App\Http\Controllers\BiometricoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,3 +43,6 @@ Route::post('/dato-com', function (Request $request) {
 
 Route::middleware('auth:sanctum')
     ->post('/biometrico/marcaciones', [BiometricoController::class, 'store']);
+
+Route::post('/biometrico/push', [BiometricoController::class, 'receivePush']);
+

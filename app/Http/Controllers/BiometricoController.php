@@ -3,40 +3,28 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BiometricoController extends Controller
 {
-    public function store(Request $request)
+    public function receivePush(Request $request)
     {
-        
-        $request->validate([
-            'dispositivo_id' => 'required',
-            'logs' => 'required|array'
-        ]);
-
-        dd($request->logs);
-        
         foreach ($request->logs as $log) {
-
-            $hash = hash('sha256',
-                $log['empleado_id'] .
-                $log['fecha_hora'] .
-                $request->dispositivo_id
-            );
-
-            AsistenciaMarcacion::firstOrCreate(
-                ['hash_unico' => $hash],
+            DB::table('td_timbres')->updateOrInsert(
                 [
-                    'empleado_id' => $log['empleado_id'],
-                    'dispositivo_id' => $request->dispositivo_id,
-                    'fecha' => date('Y-m-d', strtotime($log['fecha_hora'])),
-                    'hora' => date('H:i:s', strtotime($log['fecha_hora'])),
-                    'fecha_hora' => $log['fecha_hora'],
-                    'zk_uid' => $log['zk_uid'],
+                    'codigo' => $log['sn'],
+                    'fecha_hora' => $log['datetime'],
+                    'fecha' => date('Y-m-d', strtotime($log['datetime'])),
+                    'hora' => date('H:i:s', strtotime($log['datetime'])),
+                ],
+                [
+                    'funcion' => $log['type'],
+                    'estado' => 'A',
+                    'created_at' => now(),
                 ]
             );
         }
 
-        return response()->json(['status' => 'ok']);
+        return response()->json(['ok' => true]);
     }
 }

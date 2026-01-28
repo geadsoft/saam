@@ -33,6 +33,11 @@
                             </div>
                             <div class="col-md-auto ms-auto">
                                 <div class="hstack text-nowrap gap-2">
+                                    <button type="button" wire:click.prevent="getTimbres()"
+                                        class="btn btn-info add-btn" data-bs-toggle="modal" id="create-btn"
+                                        data-bs-target=""><i class="ri-file-copy-fill align-bottom me-1"></i>
+                                        Timbres
+                                    </button>
                                     <button type="button" wire:click.prevent="marcaciones()"
                                         class="btn btn-info add-btn" data-bs-toggle="modal" id="create-btn"
                                         data-bs-target=""><i class="ri-file-copy-fill align-bottom me-1"></i>
