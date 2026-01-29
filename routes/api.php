@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\LecturaCom;
 use App\Http\Controllers\BiometricoController;
+use App\Http\Controllers\TalentoHumanoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,4 +46,5 @@ Route::middleware('auth:sanctum')
     ->post('/biometrico/marcaciones', [BiometricoController::class, 'store']);
 
 Route::post('/biometrico/push', [BiometricoController::class, 'receivePush']);
-
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/marcaciones', [TalentoHumanoController::class, 'loadmarcaciones']);
