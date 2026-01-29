@@ -51,7 +51,7 @@
             <div class="row">
                 <div class="col-xl-3 col-md-6">
                     <!-- card -->
-                    <div class="card card-animate bg-primary">
+                    <div class="card card-animate bg-primary ">
                         <div class="card-body">
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">

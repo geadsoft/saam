@@ -171,4 +171,9 @@ class RecursosHumanosController extends Controller
         return view('rrhh/permisos');
     }
 
+    public function vacaciones()
+    {
+        return view('rrhh/vacaciones');
+    }
+
 }   
