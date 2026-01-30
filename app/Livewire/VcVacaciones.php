@@ -2,17 +2,24 @@
 
 namespace App\Livewire;
 
+use App\Models\TmPersonas;
 use App\Models\TmArea;
 use App\Models\TmContratos;
-use App\Models\TdVacaciones;
+use App\Models\TdSolicitudVacaciones;
 use App\Models\TmCalendarioEventos;
+use App\Services\VacationService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class VcVacaciones extends Component
 {
-    public $tblperiodos, $vacaciones, $personas, $showEditModal;
+    use WithPagination;
+
+    public $tblperiodos, $personas, $showEditModal, $periodoContable;
     public $arrevent, $record=[];
 
     public $estado=[
@@ -39,8 +46,8 @@ class VcVacaciones extends Component
         ->values();
 
         $this->filters['periodo'] = $this->tblperiodos[0]->periodo;
-        $this->diasVacaciones();
-        $this->loadEvent();
+        //$this->diasVacaciones();
+        //$this->loadEvent();
     }
 
     public function render()
@@ -58,36 +65,72 @@ class VcVacaciones extends Component
         ->orderBy('apellidos')
         ->get();
 
+        $vacaciones = $this->diasVacaciones();
+
+        $tblrecords = TdSolicitudVacaciones::query()
+        ->join('tm_personas as p','p.id','=','td_solicitud_vacaciones.persona_id')
+        ->join('tm_contratos as c','c.persona_id','=','p.id')
+        ->join('tm_cargocias as cc','c.cargo_id','=','cc.id')
+        ->select('p.nombres','p.apellidos','cc.descripcion as cargo','td_solicitud_vacaciones.*')
+        ->paginate(12);
+
         return view('livewire.vc-vacaciones',[
             'departs' => $departs,
             'personas' => $this->personas,
+            'vacaciones' => $vacaciones,
+            'tblrecords' => $tblrecords,
         ]);
+    }
+
+    public function paginationView(){
+        return 'vendor.livewire.bootstrap'; 
     }
 
     public function diasVacaciones()
     {
+        $vacaciones = TmContratos::query()
+        ->join('tm_personas as p', 'p.id', '=', 'tm_contratos.persona_id')
+        ->join('tm_areas as a','tm_contratos.area_id','=','a.id')
+        ->join('tm_areas as d','tm_contratos.departamento_id','=','d.id')
+        ->leftJoinSub(
+            DB::table('td_periodo_vacaciones')
+                ->selectRaw('persona_id, SUM(dias_generados - dias_usados) AS disponibles')
+                ->groupBy('persona_id'),
+            'pv',
+            'pv.persona_id',
+            '=',
+            'p.id'
+        )
 
-        $empleados = TmContratos::query()
-        ->join('tm_personas as p','p.id','=','tm_contratos.persona_id')
-        ->when(filled($this->filters['departamento']), fn($q) =>
-            $q->where('tm_contratos.departamento_id', $this->filters['departamento']))
-        ->when(filled($this->filters['area']), fn($q) =>
-            $q->where('tm_contratos.area_id', $this->filters['area']))
-        ->orderBy('apellidos')
-        ->get();
+        ->leftJoinSub(
+            DB::table('td_solicitud_vacaciones')
+                ->selectRaw("
+                    persona_id,
+                    SUM(CASE WHEN estado = 'A' THEN dias ELSE 0 END) AS aprobadas,
+                    SUM(CASE WHEN estado = 'S' THEN dias ELSE 0 END) AS solicitadas
+                ")
+                ->groupBy('persona_id'),
+            'sv',
+            'sv.persona_id',
+            '=',
+            'p.id'
+        )
 
-        foreach($empleados as $empleado){
-            $this->vacaciones[]=[
-                'id' => $empleado->id,
-                'empleado' => $empleado->apellidos.' '.$empleado->nombres,
-                'area' => $empleado->area->descripcion,
-                'departamento' => $empleado->departamento->descripcion,
-                'disponibles' => 0,
-                'aprobadas' => 0,
-                'validacion' => 0,
-                'pendientes' => 0,
-            ];
-        }
+        ->select(
+            'p.id',
+            'p.nombres',
+            'p.apellidos',
+            'a.descripcion as area',
+            'd.descripcion as departamento',
+            DB::raw('COALESCE(pv.disponibles, 0) AS disponibles'),
+            DB::raw('COALESCE(sv.aprobadas, 0) AS aprobadas'),
+            DB::raw('COALESCE(sv.solicitadas, 0) AS solicitadas')
+        )
+        ->orderBy('p.apellidos')
+        ->paginate(12);
+        
+    
+        return $vacaciones;
 
     }
 
@@ -125,8 +168,8 @@ class VcVacaciones extends Component
 
         $startDate = date('d-m-Y',strtotime($this->record['fechadesde']));
         $endDate = date('d-m-Y',strtotime($this->record['fechahasta']));
-        $inicio = Carbon::createFromFormat('d-m-Y H:i', $startDate);
-        $fin    = Carbon::createFromFormat('d-m-Y H:i', $endDate);
+        $inicio = Carbon::createFromFormat('d-m-Y', $startDate);
+        $fin    = Carbon::createFromFormat('d-m-Y', $endDate);
 
         // Validación básica
         if ($fin->lessThanOrEqualTo($inicio)) {
@@ -138,13 +181,13 @@ class VcVacaciones extends Component
         $tiempo = $totalDias;
         $tipoPermiso = 'dias';
 
-        TdVacaciones::Create([
+        TdSolicitudVacaciones::Create([
             'persona_id' => $this->record['personaId'],
             'fecha' => $this->record['fecha'],
             'fecha_empieza' => $this->record['fechadesde'],
             'fecha_termina' => $this->record['fechahasta'],
             'observacion' => $this -> record['comentario'],
-            'tiempo' => $tiempo.' '.$tipoPermiso,
+            'dias' => $tiempo,
             'estado' => 'S',
             'usuario' => auth()->user()->name,
         ]);
@@ -164,8 +207,61 @@ class VcVacaciones extends Component
             'usuario' => auth()->user()->name,
         ]);
 
-        $this->dispatch('hide-form');  
+        $this->dispatch('hide-form'); 
         $this->dispatch('msg-grabar');
+    }
+
+    //Aprobar Solicitud
+    public function aprobar($requestId)
+    {
+        DB::transaction(function () use ($requestId) {
+
+            $request = TdSolicitudVacaciones::lockForUpdate()->findOrFail($requestId);
+
+            if ($request->estado !== 'PENDIENTE') {
+                throw new \Exception('Solicitud ya gestionada');
+            }
+
+            $diasDisponibles = VacationService::getAvailableDays($request->employee_id);
+
+            if ($request->dias > $diasDisponibles) {
+                throw new \Exception('Días insuficientes');
+            }
+
+            VacationService::consumeDaysFIFO($request);
+
+            $request->estado = 'APROBADA';
+            $request->save();
+        });
+
+        //$this->emit('vacationUpdated');
+    }
+
+    
+    //Elimina Solicitudes Aprobadas
+    public function deleteAprobada($requestId)
+    {
+        DB::transaction(function () use ($requestId) {
+
+            $request = VacationRequest::lockForUpdate()->findOrFail($requestId);
+
+            if ($request->estado !== 'APROBADA') return;
+
+            $movements = VacationMovement::where('vacation_request_id', $request->id)->get();
+
+            foreach ($movements as $movement) {
+                $period = VacationPeriod::find($movement->vacation_period_id);
+                $period->dias_usados -= $movement->dias;
+                $period->save();
+            }
+
+            VacationMovement::where('vacation_request_id', $request->id)->delete();
+
+            $request->estado = 'ANULADA';
+            $request->save();
+        });
+
+        $this->emit('vacationUpdated');
     }
 
     public function calculaTiempo($inicio,$fin){

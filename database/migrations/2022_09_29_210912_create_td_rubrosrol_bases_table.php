@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('td_rubrosrol_bases', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('rubrosrol_id')->unsigned();
+            $table->unsignedBigInteger('rubrorol_id')->unsigned();
             $table->unsignedBigInteger('baserubrorol_id')->unsigned();
             $table->double('importe',14,6);
             $table->double('constante',14,6);

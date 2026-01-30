@@ -19,14 +19,14 @@
                             <div class="col-xxl-5 col-sm-6">
                                 <div class="search-box">
                                     <input type="text" class="form-control search"
-                                        placeholder="Buscar por apellidos y nombres" wire:model="filters.nombres">
+                                        placeholder="Buscar por apellidos y nombres" wire:model.live="filters.nombres">
                                     <i class="ri-search-line search-icon"></i>
                                 </div>
                             </div>
                             <div class="col-xxl-2 col-sm-4">
                                 <div>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbnivel" wire:model="filters.departamento">
+                                        name="choices-single-default" id="cmbnivel" wire:model.live="filters.departamento">
                                         <option value="" selected>Todos</option>
                                         @foreach ($areas as $area)
                                             <option value="{{$area->id}}">{{$area->descripcion}}</option>
@@ -38,7 +38,7 @@
                             <div class="col-xxl-2 col-sm-4">
                                 <div>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbestado" wire:model="filters.cargo">
+                                        name="choices-single-default" id="cmbestado" wire:model.live="filters.cargo">
                                         <option value="" selected>Todos</option>
                                         @foreach ($cargos as $cargo)
                                             <option value="{{$cargo->id}}">{{$cargo->descripcion}}</option>
@@ -70,7 +70,8 @@
                                 <thead class="text-muted table-light">
                                     <tr class="text-uppercase">
                                         <th scope="col">Fecha Ingreso</th>
-                                        <th scope="col">Colaborador</th>                                        
+                                        <th scope="col">Colaborador</th>  
+                                        <th scope="col">Sueldo</th>                                       
                                         <th scope="col">Tipo Contrato</th>
                                         <th scope="col">Area</th>
                                         <th scope="col">Departamento</th>
@@ -85,12 +86,12 @@
                                     <tr>
                                         <td>{{date('d/m/Y', strtotime($record->fecha_ingreso))}}</td>
                                         <td>{{$record->persona->apellidos}} {{$record->persona->nombres}}</td> 
+                                        <td>{{$record->sueldo}}</td> 
                                         <td>{{$record->tipocontrato->descripcion}}</td>
                                         <td>{{$record->area->descripcion}}</td>
                                         <td>{{$record->departamento->descripcion}}</td>
                                         <td>{{$record->cargo->descripcion}}</td>
                                         <td>{{$record->codigo_sectorial}}</td>
-                                        
                                         <td>
                                             @if($record->estado=='A')
                                                 <span class="badge badge-soft-success text-uppercase">Activo</span>

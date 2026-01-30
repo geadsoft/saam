@@ -209,7 +209,7 @@
                             </li>
                         </ul>
                         <div class="tab-content mb-3">
-                            <div class="tab-pane fade {{ $this->filters['tab'] == 'timbres' ? 'show active' : '' }}"
+                            <div class="tab-pane fade {{ $this->filters['tab'] == 'vacaciones' ? 'show active' : '' }}"
                                 id="tab-vacaciones" role="tabpanel">
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -217,13 +217,6 @@
                                             <table class="table table-sm table-nowrap align-middle" style="width:100%">
                                                 <thead class="table-light">
                                                     <tr>
-                                                        <th scope="col" style="width: 50px;">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    id="checkAll" value="option">
-                                                            </div>
-                                                        </th>
-                                                        <!--<th class="sort" data-sort="id" scope="col">ID</th>-->
                                                         <th scope="col" style="display:none">Id</th>
                                                         <th scope="col">Nombre</th>
                                                         <th scope="col">Cargo</th>
@@ -232,22 +225,54 @@
                                                         <th scope="col">Fecha Solicitud</th>
                                                         <th scope="col">Fecha Inicio</th>
                                                         <th scope="col">Fecha Fin</th>
-                                                        <th scope="col">Total Dias</th>
-                                                        <th scope="col">Acción</th>
+                                                        <th class="text-end">Total Dias</th>
+                                                        <th class="text-center">Acción</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="list form-check-all">
-
-
+                                                    @foreach($tblrecords as $fil => $record)
+                                                    <tr id="{{$fil}}" class="detalle">
+                                                        <td>{{$record->apellidos}} {{$record->nombres}}</td>
+                                                        <td>{{$record->cargo}}</td>
+                                                        <td>{{$record->estado}}</td>
+                                                        <td>{{$record->usuario}}</td>
+                                                        <td>{{ date('d/m/Y', strtotime($record->fecha)) }}</td>
+                                                        <td class="text-success">{{$record->fecha_empieza}}</td>
+                                                        <td class="text-info">{{$record->fecha_termina}}</td>
+                                                        <td class="text-end">{{$record->dias}}</td>
+                                                        <td>
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="ri-more-fill align-middle"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end" style="">
+                                                                    <li><button class="dropdown-item" href="javascript:void(0);" data-id="btnap-{{$fil}}"><i class="ri-eye-fill align-bottom me-2 text-muted"></i>
+                                                                            Aprobar</button></li>
+                                                                    <li><button class="dropdown-item" href="javascript:void(0);" data-id="btnde--{{$fil}}"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
+                                                                            Denegar</button></li>
+                                                                    <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
+                                                                            Editar</a></li>
+                                                                    <li class="dropdown-divider"></li>
+                                                                    <li>
+                                                                        <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteOrder">
+                                                                            <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
+                                                                            Eliminar
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
                                                 </tbody>
                                             </table>
+                                            {{$tblrecords->links('')}}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade {{ $this->filters['tab'] == 'extras' ? 'show active' : '' }}"
-                                id="tab-calendario"
-                                role="tabpanel">
+                            <div class="tab-pane fade {{ $this->filters['tab'] == 'calendario' ? 'show active' : '' }}"
+                                id="tab-calendario" role="tabpanel">
 
                                 <div class="col-xl-12">
                                     <div class="card card-h-100">
@@ -259,7 +284,7 @@
 
                                 <div style="clear:both"></div>
                             </div>
-                            <div class="tab-pane fade {{ $this->filters['tab'] == 'extras' ? 'show active' : '' }}"
+                            <div class="tab-pane fade {{ $this->filters['tab'] == 'empleados' ? 'show active' : '' }}"
                                 id="tab-empleados" role="tabpanel">
                                 <div class="table-responsive">
                                     <div class="card-body">
@@ -270,10 +295,30 @@
                                                         <th>Nombre</th>
                                                         <th>Area</th>
                                                         <th>Departamento</th>
-                                                        <th><i class="mdi mdi-beach fs-18"></i></th>
-                                                        <th><i class="mdi mdi-calendar-check fs-18"></i></th>
-                                                        <th><i class="mdi mdi-calendar-clock fs-18"></i></th>
-                                                        <th><i class="mdi mdi-calendar-blank fs-18"></i></th>
+                                                        <th>
+                                                            <li class="list-inline-item edit" data-bs-toggle="tooltip"
+                                                                data-bs-placement="top" title="Dias Disponibles">
+                                                                <i class="mdi mdi-beach fs-18"></i>
+                                                            </li>
+                                                        </th>
+                                                        <th>
+                                                            <li class="list-inline-item edit" data-bs-toggle="tooltip"
+                                                                data-bs-placement="top" title="Dias Aprobados">
+                                                                <i class="mdi mdi-calendar-check fs-18"></i>
+                                                            </li>
+                                                        </th>
+                                                        <th>
+                                                            <li class="list-inline-item edit" data-bs-toggle="tooltip"
+                                                                data-bs-placement="top" title="Dias por Validar">
+                                                                <i class="mdi mdi-calendar-clock fs-18"></i>
+                                                            </li>
+                                                        </th>
+                                                        <th>
+                                                            <li class="list-inline-item edit" data-bs-toggle="tooltip"
+                                                                data-bs-placement="top" title="Dias Pendientes">
+                                                                <i class="mdi mdi-calendar-blank fs-18"></i>
+                                                            </li>
+                                                        </th>
                                                         <th>Acción</th>
                                                     </tr>
                                                 </thead>
@@ -287,16 +332,16 @@
                                                                         alt="" class="avatar-xs rounded-circle">
                                                                 </div>
                                                                 <div class="flex-grow-1">
-                                                                    {{$data['empleado']}}
+                                                                    {{$data->apellidos}} {{$data->nombres}}
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td>{{$data['area']}}</td>
-                                                        <td>{{$data['departamento']}}</td>
-                                                        <td>{{$data['disponibles']}}</td>
-                                                        <td>{{$data['aprobadas']}}</td>
-                                                        <td>{{$data['validacion']}}</td>
-                                                        <td>{{$data['pendientes']}}</td>
+                                                        <td>{{$data->area}}</td>
+                                                        <td>{{$data->departamento}}</td>
+                                                        <td>{{$data->disponibles}}</td>
+                                                        <td>{{$data->aprobadas}}</td>
+                                                        <td>{{$data->solicitadas}}</td>
+                                                        <td>{{$data->disponibles}}</td>
                                                         <td>
                                                             <ul class="list-inline hstack gap-2 mb-0">
                                                                 <li class="list-inline-item edit"
@@ -312,9 +357,11 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
+                                            {{$vacaciones->links('')}}
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -325,11 +372,13 @@
         </div> <!-- end col -->
     </div>
 
-    <div wire:ignore.self class="modal fade zoomIn" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div wire:ignore.self class="modal fade zoomIn" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0">
                 <div class="modal-header p-3" style="background-color: #024750;">
-                    <h5 class="modal-title text-white" id="exampleModalLabel" > {{ $showEditModal ? 'Actualizar Vacaciones' : 'Registrar Vacaciones' }}</h5>
+                    <h5 class="modal-title text-white" id="exampleModalLabel">
+                        {{ $showEditModal ? 'Actualizar Vacaciones' : 'Registrar Vacaciones' }}</h5>
                     <button type="button" class="btn border-0" data-bs-dismiss="modal">
                         <i class="mdi mdi-close-thick text-danger fs-4"></i>
                     </button>
@@ -340,43 +389,46 @@
                             <div class="col-lg-9">
                                 <div>
                                     <label for="cmbpersona" class="form-label">Empleado</label>
-                                    <select class="form-select" data-choices data-choices-search-false 
-                                        name="choices-single-default" id="cmbpersona" wire:model.defer="record.personaId" required  @disabled($showEditModal)>
+                                    <select class="form-select" data-choices data-choices-search-false
+                                        name="choices-single-default" id="cmbpersona"
+                                        wire:model.defer="record.personaId" required @disabled($showEditModal)>
                                         <option value="" selected>Seleccione Empleado</option>
-                                        @foreach ($personas as $persona) 
-                                            <option value="{{$persona->id}}">{{$persona->apellidos}} {{$persona->nombres}}</option>
-                                        @endforeach                              
-                                    </select>                                   
+                                        @foreach ($personas as $persona)
+                                        <option value="{{$persona->id}}">{{$persona->apellidos}} {{$persona->nombres}}
+                                        </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <label for="orderId" class="form-label">Fecha Solicitud</label>
                                 <input id="dfecha" name="date" type="date" class="form-control"
-                                data-provider="flatpickr" data-date-format="d-m-Y" data-time="true"
-                                wire:model.defer="record.fecha" readonly>
-                            </div>        
+                                    data-provider="flatpickr" data-date-format="d-m-Y" data-time="true"
+                                    wire:model.defer="record.fecha" readonly>
+                            </div>
                             <div class="col-lg-6">
                                 <label for="date-field" class="form-label">Fecha Empieza</label>
                                 <div class="d-flex gap-2">
                                     <input id="dfechaini" name="dateIni" type="date" class="form-control"
-                                    data-provider="flatpickr" data-date-format="d-m-Y" data-time="true"
-                                    wire:model.defer="record.fechadesde" required>
-                                    
+                                        data-provider="flatpickr" data-date-format="d-m-Y" data-time="true"
+                                        wire:model.defer="record.fechadesde" required>
+
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <label for="duedate-field" class="form-label">Fecha Finaliza</label>
                                 <div class="d-flex gap-2">
                                     <input id="dfechafin" name="dateIni" type="date" class="form-control"
-                                    data-provider="flatpickr" data-date-format="d-m-Y" data-time="true"
-                                    wire:model.defer="record.fechahasta" required>
-                                    
+                                        data-provider="flatpickr" data-date-format="d-m-Y" data-time="true"
+                                        wire:model.defer="record.fechahasta" required>
+
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div>
                                     <label for="assignedtoName-field" class="form-label">Comentario</label>
-                                    <textarea class="form-control" id="txtcoment" rows="3" wire:model.defer="record.comentario"></textarea>
+                                    <textarea class="form-control" id="txtcoment" rows="3"
+                                        wire:model.defer="record.comentario"></textarea>
                                 </div>
                             </div>
                         </div>

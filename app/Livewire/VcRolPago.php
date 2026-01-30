@@ -61,14 +61,14 @@ class VcRolPago extends Component
         array_push($this->aportes,$arraporte);
 
         $arraporte = [
-            'rubro'   => $this->tblCia['rubro_secap'],
+            'rubro'   => $this->tblCia['rubro_apsecap'],
             'nombre'  => 'aporte_secap',
             'importe' => $this->tblCia['aporte_secap'],
         ];
         array_push($this->aportes,$arraporte);
 
         $arraporte = [
-            'rubro'   => $this->tblCia['rubro_iece'],
+            'rubro'   => $this->tblCia['rubro_apiece'],
             'nombre'  => 'aporte_iece',
             'importe' => $this->tblCia['aporte_iece'],
         ];
@@ -213,7 +213,6 @@ class VcRolPago extends Component
 
     public function aportBenef($objPersona){
 
-        
         foreach ($this->aportes as $aporte){
 
             $rubroId = $aporte['rubro'];
@@ -229,9 +228,9 @@ class VcRolPago extends Component
             ])->first();
 
             $rubro    = TmRubrosrol::where('id',$rubroId)->first();
-
+            
             $variable = DB::table('tm_variables')
-            ->where('id',$rubro['variable1'])
+            ->where('id',$rubro->variable1)
             ->first();
 
             $campo   = $variable->campo;
@@ -490,7 +489,10 @@ class VcRolPago extends Component
         ->where('persona_id',$objpersona['id'])
         ->where('rubrosrol_id',$objrubro['id'])
         ->where('d.fecha',$fechafin)
-        ->first();
+        ->where('d.estado','P')
+        ->selectRaw('COALESCE(SUM(d.valor), 0) as total')
+        ->value('total');
+        
 
         if ($prestamo==null){
             return;

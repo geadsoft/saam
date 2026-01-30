@@ -11,19 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('td_vacaciones', function (Blueprint $table) {
+        Schema::create('td_periodo_vacaciones', function (Blueprint $table) {
+
             $table->id();
             $table->unsignedBigInteger('persona_id')->unsigned();
-            $table->datetime('fecha')->nullable();
-            $table->datetime('fecha_empieza')->nullable();
-            $table->datetime('fecha_termina')->nullable();
-            $table->string('tiempo',80);
-            $table->string('observacion',300);
-            $table->char('estado', 1)->default('S');
-            $table->string('usuario',50);
+            $table->bigInteger('periodo')->default(0);
+            $table->bigInteger('dias_generados')->default(0);
+            $table->bigInteger('dias_usados')->default(0);
             $table->timestamps();
 
             $table->foreign('persona_id')->references('id')->on('tm_personas');
+            
         });
     }
 
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('td_vacaciones');
+        Schema::dropIfExists('td_periodo_vacaciones');
     }
 };
