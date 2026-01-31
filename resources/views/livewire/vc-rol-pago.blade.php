@@ -25,9 +25,6 @@
                                     <button type="button" wire:click.prevent="add('S')" class="btn btn-danger add-btn" data-bs-toggle="modal" id="create-btn"
                                         data-bs-target=""><i class="ri-file-copy-fill align-bottom me-1"></i> Ver Rol
                                     </button>
-                                    <!--<button type="button" wire:click.prevent="createData()" class="btn btn-success add-btn" data-bs-toggle="modal" id="create-btn"
-                                        data-bs-target=""><i class="ri-add-line align-bottom me-1"></i> Grabar
-                                    </button>-->
                                     <div class="justify-content-center">
                                         @if (!empty($detalle))
                                         <button type="submit" class="btn btn-success w-sm" ><i class="ri-save-3-fill align-bottom me-1"></i>Grabar</button>
@@ -44,13 +41,6 @@
                 <div class="card" id="contactList">
                     <div class="card-header">
                         <div class="row g-3">
-                            <!--<div class="col-md-4">
-                                <label for="cmbtiporol" class="form-label">Buscar Empleado</label>
-                                <div class="search-box">
-                                    <input type="text" class="form-control search" placeholder="Search for contact..." wire:model="">
-                                    <i class="ri-search-line search-icon"></i>
-                                </div>
-                            </div>-->
                         </div>
                     </div>
                     <div class="card-body">
@@ -60,13 +50,6 @@
                                 <table class="table table-nowrap align-middle" style="width:100%">
                                     <thead class="table-light">
                                         <tr>
-                                            <!--<th scope="col" style="width: 50px;">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="checkAll" value="option">
-                                                </div>
-                                            </th>-->
-                                            <!--<th class="sort" data-sort="id" scope="col">ID</th>-->
                                             <th scope="col" style="width: 320px;" class="text-center">Empleados</th>
                                             <th scope="col" style="width: 200px;" class="text-center">Ingresos</th>
                                             <th scope="col" style="width: 200px;" class="text-center">Otros Ingresos</th>
@@ -81,12 +64,6 @@
                                     <tbody class="list form-check-all">
                                         @foreach ($detalle as $data)
                                             <tr class="detalle">
-                                                <!--<th scope="row">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" name="chk_child"
-                                                            value="option1">
-                                                    </div>
-                                                </th>-->
                                                 <td>
                                                     <input type="text" class="form-control bg-light border-0" value='{{$data['empleado']}}' disabled/>
                                                 </td>
@@ -155,10 +132,8 @@
                                         @endforeach
                                         <tr class="detalle">
                                             <td  colspan="5">
-                                                <!--<input type="text" class="form-control bg-light border-0" value='' disabled/>--> 
                                             </td>
                                             <td>
-
                                             <input type="text" inputmode="numeric" class="form-control product-price bg-light border-0" id="txtoting" step="0.01" placeholder="0.00" value = '{{number_format($totalRol['total'],2)}}' disabled>
                                             </td> 
                                         </tr> 
@@ -179,94 +154,73 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--<div class="d-flex justify-content-end mt-3">
-                                <div class="pagination-wrap hstack gap-2">
-                                    <a class="page-item pagination-prev disabled" href="#">
-                                        Previous
-                                    </a>
-                                    <ul class="pagination listjs-pagination mb-0"></ul>
-                                    <a class="page-item pagination-next" href="#">
-                                        Next
-                                    </a>
-                                </div>
-                            </div>-->
-                            
                         </div>
-
-                        <div wire.ignore.self class="modal fade" id="showModalRubros" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-lg" >
-                                <div class="modal-content modal-content border-0">
-                                    
-                                    <div class="modal-header p-3 bg-light">
-                                        <h5 class="modal-title" id="exampleModalLabel">
-                                            <span> {{$titulo}} &nbsp;</span>
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
-                                    </div>
-                                    <form autocomplete="off" wire:submit.prevent="">
-                                        <div class="modal-body">
-                                            
-                                            <div class="card">
-                                                <div class="card-header">
-                                                    <h5 class="card-title flex-grow-1 mb-0 text-primary"><i
-                                                        class="ri-user-follow-fill align-middle me-1 text-success"></i>
-                                                        Datos de Empleado</h5>
-                                                </div>
-                                            </div>
-                                            @livewire('vc-modal-rubros')                                       
-                                        </div>
-                                        <div class="modal-footer">
-                                            <div class="hstack gap-2 justify-content-end">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="button" wire:click.prevent="add('N')" class="btn btn-success" id="add-btn">Save</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div wire.ignore.self class="modal fade flip" id="loadRecordModal" tabindex="-1" aria-hidden="true" wire:model='selectId'>
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-body p-5 text-center">
-                                        <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
-                                            colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px">
-                                        </lord-icon>
-                                        <div class="mt-4 text-center">
-                                            <h4>You are about to delete the record ?</h4>
-                                            <p class="text-muted fs-15 mb-4">Deleting the record will remove
-                                                all of
-                                                your information from our database.</p>
-                                            <div class="hstack gap-2 justify-content-center remove">
-                                                <button class="btn btn-link link-success fw-medium text-decoration-none"
-                                                    data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i>
-                                                    Close</button>
-                                                <button class="btn btn-danger" id="delete-record"  wire:click="deleteData()"> Yes,
-                                                    Delete It</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--end delete modal -->
-
                     </div>
                 </div>
                 <!--end card-->
-                
-                        
-                    
             </div>
-            
-
-            <!--end col-->
-            
             <!--end col-->
         </div>
-
     </form>
     <!--end row-->
+    <div wire:ignore.self class="modal fade" id="showModalRubros" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" >
+            <div class="modal-content modal-content border-0">
+                
+                <div class="modal-header p-3 bg-light">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        <span> {{$titulo}} &nbsp;</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
+                </div>
+                <form autocomplete="off" wire:submit.prevent="">
+                    
+                        <div class="modal-body">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title flex-grow-1 mb-0 text-primary"><i
+                                    class="ri-user-follow-fill align-middle me-1 text-success"></i>
+                                    Datos de Empleado</h5>
+                            </div>
+                        </div>
+                            @livewire('vc-modal-rubros', ['params' => $datosHijo], key($modalKey))
+                        </div>                                       
+                    
+                    <div class="modal-footer">
+                        <div class="hstack gap-2 justify-content-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" wire:click.prevent="add('N')" class="btn btn-success" id="add-btn">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div wire:ignore.self class="modal fade flip" id="loadRecordModal" tabindex="-1" aria-hidden="true" wire:model='selectId'>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-5 text-center">
+                    <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
+                        colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px">
+                    </lord-icon>
+                    <div class="mt-4 text-center">
+                        <h4>You are about to delete the record ?</h4>
+                        <p class="text-muted fs-15 mb-4">Deleting the record will remove
+                            all of
+                            your information from our database.</p>
+                        <div class="hstack gap-2 justify-content-center remove">
+                            <button class="btn btn-link link-success fw-medium text-decoration-none"
+                                data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i>
+                                Close</button>
+                            <button class="btn btn-danger" id="delete-record"  wire:click="deleteData()"> Yes,
+                                Delete It</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end delete modal -->
 </div>
 

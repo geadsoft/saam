@@ -26,6 +26,9 @@ class VcRolPago extends Component
     public $tblCia, $fecha, $periodoId=0, $tiporolid, $titulo, $count=1;
     public $ingreso, $otringr, $egresos, $otegres, $tblperiodos, $grabar;
     public $detalle = [], $aportes=[], $totalRol = [], $personal, $fecharol;
+    public $modalKey = 0;
+    public $datosHijo = [];
+
     public $rowdata = [
         'empleado_id' => '',
         'empleado' => '',
@@ -86,8 +89,6 @@ class VcRolPago extends Component
                
         $this->tblperiodos = TmPeriodosrol::where('procesado',0)
         ->get();
-
-        /*$this->tblCia = TmCompania::where('id',1)->first();*/
         
         return view('livewire.vc-rol-pago',[
             'tblperiodos' => $this->tblperiodos,
@@ -112,7 +113,6 @@ class VcRolPago extends Component
             return ; 
         }
         
-        //$tblperiodos = TmPeriodosrol::find($this->periodoId);
         $this->detalle = [];
 
         $tiporol = TmPeriodosrol::query()
@@ -139,7 +139,7 @@ class VcRolPago extends Component
         ->where('c.estado','A')
         ->orderBy('tm_personas.apellidos','asc')
         ->get();
-      
+
         foreach ($personas as $persons)
         {
             
@@ -467,8 +467,6 @@ class VcRolPago extends Component
         if(!empty($tmingresos)){
 
             $valor = $tmingresos->valor_mes;
-            //$this->ingreso =  $this->ingreso + $valor;
-
             $this->grabaRubros($objPersona['id'],$objrubro['id'],$valor);
         
         }
@@ -572,10 +570,16 @@ class VcRolPago extends Component
         }
                 
         $tiporol = TmPeriodosrol::find($this->periodoId);
-
+        $this->modalKey++;
+        $this->datosHijo = [
+            'accion' => $event,
+            'tiporolId' => $tiporol['tiporol_id'],
+            'periodoId' => $this->periodoId,
+            'empleadoRol' => $empleadorol,
+            'modo' => 'GR'
+        ];
+        
         $this->dispatch('show-form');
-        $this->emitTo('vc-modal-rubros','setRubros',$event,$tiporol['tiporol_id'],$this->periodoId,$empleadorol,'GR');
-
     }
 
     public function grabarRol(){
@@ -631,19 +635,6 @@ class VcRolPago extends Component
             'estado' => ""
         ];
 
-        /*if ($periodo['remuneracion']=='Q'){
-            $tblrecord = TdPlanillaRubros::where([
-                ['tiposrol_id',$this->tiporolid],
-                ['periodosrol_id',$this->periodoId],
-                ['valor','>',0],
-            ])->get();
-        }else{
-            $tblrecord = TdPlanillaRubros::where([
-                ['tiposrol_id',$this->tiporolid],
-                ['periodosrol_id',$this->periodoId],
-                ['valor','>',0],
-            ])->get();
-        }*/
         $tblrecord = TdPlanillaRubros::where([
             ['tiposrol_id',$this->tiporolid],
             ['periodosrol_id',$this->periodoId],
@@ -677,10 +668,6 @@ class VcRolPago extends Component
 
         TdRolPagos::insert($detalle); 
         
-        /*$objperiodo = TmPeriodosrol::find($this->periodoId);
-        $objperiodo->Update([
-            'aprobado' => 1,
-        ]);*/
         $objperiodo = TmPeriodosrol::find($this->periodoId);
         $objperiodo->Update([
             'procesado' => 1,

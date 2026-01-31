@@ -31,23 +31,27 @@
 
 
     <script>
-        window.addEventListener('graph-1', event => {
-                var objgraphs
+        
+
+        document.addEventListener('livewire:init', () => {
+            
+            Livewire.on('graph-1', ({ newObj }) => {
                 objgraphs = JSON.parse(event.detail.newObj);
                 viewGraphs1(objgraphs);
-            })
+            });
 
-        window.addEventListener('graph-2', event => {
-                var objgraphs 
+            Livewire.on('graph-2', ({ newObj }) => {
                 objgraphs = JSON.parse(event.detail.newObj);
                 viewGraphs2(objgraphs);
-            })
+            });
 
-        window.addEventListener('graph-3', event => {
-                var objgraphs 
+            Livewire.on('graph-3', ({ newObj }) => {
                 objgraphs = JSON.parse(event.detail.newObj);
                 viewGraphs3(objgraphs);
-            })
+            });
+
+        });
+
     </script>
 
 @endsection

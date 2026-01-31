@@ -19,7 +19,7 @@ class VcModalRubros extends Component
 
     public $tblrecords=[], $modalRol;
     public $showEdit = false;
-    public $rolpagoId = 0, $tblrubros, $rubrorolId="", $valor=0, $tiporolId, $periodorolId, $personaId, $tipodato, $rolpago;
+    public $rolpagoId = 0, $tblrubros, $rubrorolId="", $valor=0, $tiporolId, $periodorolId, $personaId, $tipodato, $rolpago, $rol;
     public $personal = [
         'nombres' => '',
         'apellidos' => '',
@@ -27,8 +27,22 @@ class VcModalRubros extends Component
         'fecha_ingreso' => '',
     ];
 
-    protected $listeners = ['setRubros','setRegistraRol'];
+    protected $listeners = ['setRegistraRol'];
     
+    public function mount($params = [])
+    {
+        if (!empty($params)) {
+            
+            $this->tipodato     = $params['accion']; 
+            $this->tiporolId    = $params['tiporolId']; 
+            $this->periodorolId = $params['periodoId'];
+            $this->personaId    = $params['empleadoRol'];
+            $this->rol          = $params['modo'];
+            $this->setRubros();
+        }
+
+    }
+
     public function render()
     {
         return view('livewire.vc-modal-rubros',[
@@ -54,47 +68,40 @@ class VcModalRubros extends Component
     }
 
     
+    public function setRubros(){
 
-    public function setRubros($event,$tiporol,$periodorol,$empleadorol,$rol){
-
-        $this->modalRol   = $rol;
-        $periodo = TmPeriodosrol::find($periodorol);
+        $this->modalRol   = $this->rol;
+        $periodo = TmPeriodosrol::find($this->periodorolId);
         
         $this->personal = TmPersonas::query()
         ->join('tm_contratos as c','c.persona_id','=','tm_personas.id')
         ->select('apellidos','nombres','nui','c.fecha_ingreso')
-        ->where('tm_personas.id',$empleadorol)->first();
+        ->where('tm_personas.id', $this->personaId)->first();
 
         $fecha = $this->personal['fecha_ingreso'];
         $this->personal['fecha_ingreso'] = date('d/m/Y',strtotime($fecha));
 
         $this->tblrecords=[];
-
-        $this->tipodato     = $event;
-        $this->tiporolId    = $tiporol; 
-        $this->periodorolId = $periodorol;
-        $this->personaId    = $empleadorol;
-        $this->rol          = $rol;
         $this->rolpago      = $periodo['remuneracion'];
 
-        switch ($event) {
+        switch ($this->tipodato) {
             case 'V-INGF':
                 $this->loadIngresos($this->tiporolId,$this->periodorolId,$this->personaId);
                 break;
             case 'E-INGO':
-                $this->loadOtroIng($this->tiporolId,$this->periodorolId,$this->personaId,$event);
+                $this->loadOtroIng($this->tiporolId,$this->periodorolId,$this->personaId,$this->tipodato);
                 break;
             case 'V-INGO':
-                $this->loadOtroIng($this->tiporolId,$this->periodorolId,$this->personaId,$event);
+                $this->loadOtroIng($this->tiporolId,$this->periodorolId,$this->personaId,$this->tipodato);
                 break;
             case 'V-EGRF':
                 $this->loadEgresos($this->tiporolId,$this->periodorolId,$this->personaId);
                 break;
             case 'E-EGRO':
-                $this->loadOtroEgr($this->tiporolId,$this->periodorolId,$this->personaId,$event);
+                $this->loadOtroEgr($this->tiporolId,$this->periodorolId,$this->personaId,$this->tipodato);
                 break;
             case 'V-EGRO':
-                $this->loadOtroEgr($this->tiporolId,$this->periodorolId,$this->personaId,$event);
+                $this->loadOtroEgr($this->tiporolId,$this->periodorolId,$this->personaId,$this->tipodato);
                 break;
         }
         
@@ -156,18 +163,6 @@ class VcModalRubros extends Component
     public function loadEgresos(){
 
         $this->showEdit = false;
-            
-        /*if ($this->rol=='GR'){
-            $planilla = TdPlanillaRubros::where('tipo','R')
-            ->where('persona_id',$this->personaId)
-            ->where('valor','>',0)
-            ->get();
-        }else{
-            $planilla = TdRolPagos::where('registro','R')
-            ->where('persona_id',$this->personaId)
-            ->where('valor','>',0)
-            ->get();
-        }*/
 
         if ($this->modalRol=='GR'){
             $planilla = TdPlanillaRubros::where([

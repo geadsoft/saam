@@ -25,13 +25,13 @@
                                 <i class="bx bxs-file-pdf fs-22"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="/download-pdf/nomina/{{$datos}}" target="_blank"><i class="ri-article-line align-bottom me-2 text-muted"></i> Nomina General </a></li>
+                                    <li><a class="dropdown-item" href="/download-pdf/nomina/{{$datos}}" target="_blank"><i class="ri-todo-line align-bottom me-2 text-muted"></i> Nomina General </a></li>
                                     <li>
                                         <a class="dropdown-item"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         href="/download-pdf/pagos/{{$datos}}">
-                                            <i class="ri-stack-line align-bottom me-2 text-muted"></i>
+                                            <i class="ri-file-list-3-line align-bottom me-2 text-muted"></i>
                                             Lista de Pagos
                                         </a>
                                     </li>

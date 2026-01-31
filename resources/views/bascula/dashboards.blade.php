@@ -39,10 +39,8 @@
     <script>
 
         window.addEventListener('graph-1', event => {
-            const jsonString = event.detail.newObj;
-            alert(jsonString)
-            const objgraphs = JSON.parse(jsonString);
-            
+            var objgraphs
+            objgraphs = JSON.parse(event.detail.newObj);
             viewGraphs1(objgraphs);
         });
 

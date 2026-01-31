@@ -292,6 +292,12 @@ class VcRegistrarPagos extends Component
             'aprobado' => 1,
         ]);
 
+        TdPlanillaRubros::where('periodosrol_id', $this->objWhere['periodoRol'])
+        ->where('tiposrol_id', $this->objWhere['tipoRol'])
+        ->update([
+            'estado' => 'P' // o el valor que necesites
+        ]);
+
         $this->dispatch('msg-grabar'); 
         $this->loadData();
 
@@ -476,13 +482,17 @@ class VcRegistrarPagos extends Component
     public function viewRubros($rolpagoId){
 
         $rolcab = TcRolPagos::find($rolpagoId);
-        
+        $estado = 'P';
+        if($rolcab['estado']=='C'){
+            $estado = 'G';
+        }
+
         $this->rubrosTotal = TdPlanillaRubros::query()
         ->join('tm_rubrosrols as rr','rr.id','=','td_planillarubros.rubrosrol_id')
         ->selectRaw('rubrosrol_id, sum(valor) as monto,td_planillarubros.tipo')
         ->where('tiposrol_id',$rolcab['tiposrol_id'])
         ->where('periodosrol_id',$rolcab['periodosrol_id'])
-        ->where('td_planillarubros.tipo','P')
+        ->where('td_planillarubros.tipo',$estado)
         ->where('valor','>',0)
         ->groupBy('rubrosrol_id','td_planillarubros.tipo')
         ->orderBy('td_planillarubros.tipo','desc')

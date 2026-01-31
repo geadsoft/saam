@@ -5,6 +5,7 @@ use App\Models\TmPersonas;
 use App\Models\TcRolPagos;
 
 use Livewire\Component;
+use Illuminate\Support\Facades\Http;
 
 class VcPanel extends Component
 {
@@ -27,6 +28,9 @@ class VcPanel extends Component
     ];
 
     public function mount(){
+
+        $response = Http::get('http://181.198.111.178/api-erp/api/infoCia');
+        $cia = $response->object();
         
         $rolpago  = TcRolPagos::query()
         ->where('remuneracion','M')
@@ -34,7 +38,7 @@ class VcPanel extends Component
         ->first();
 
         if(empty($rolpago)){
-            $this->periodo = 2025;
+            $this->periodo = $cia->ejercicio;
             $this->mes = 1;
         }else{
             $this->periodo = $rolpago['periodo'];
@@ -62,9 +66,6 @@ class VcPanel extends Component
         $this->charts3=[];        
         $this->consulta();
         
-        $this->dispatch('graph-1', ['newObj' =>  $this->chartsrol]);
-        $this->dispatch('graph-2', ['newObj' =>  $this->charts2]);
-        $this->dispatch('graph-3', ['newObj' =>  $this->charts3]);
     }
 
     public function consulta()
@@ -100,6 +101,7 @@ class VcPanel extends Component
            
         }
         $this->chartsrol= json_encode($array);
+        $this->dispatch('graph-1', newObj: $this->chartsrol);
 
         /* Ingresos - Egresos */
         $array=[];
@@ -112,6 +114,7 @@ class VcPanel extends Component
             'y' => floatVal($tcrol->sum('egresos'))
         ];
         $this->charts3 = json_encode($array);
+        $this->dispatch('graph-3', newObj: $this->charts3);
 
         /* Monto Nomina */
         $array=[];
@@ -123,6 +126,8 @@ class VcPanel extends Component
             ];
         }
         $this->charts1 = json_encode($array);
+        $this->dispatch('graph-2', newObj: $this->charts1);
+        
         
         
     }

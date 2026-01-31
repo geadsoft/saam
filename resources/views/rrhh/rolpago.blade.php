@@ -29,9 +29,11 @@
 
     <script>
         
-        window.addEventListener('show-form', event => {
-            $('#showModalRubros').modal('show');
-        })
+        window.addEventListener('show-form', () => {
+            // Usamos el ID exacto que tiene el div de la modal
+            var myModal = new bootstrap.Modal(document.getElementById('showModalRubros'));
+            myModal.show();
+        });
 
         window.addEventListener('hide-form', event => {
             $('#showModalRubros').modal('hide');
