@@ -20,7 +20,7 @@
                                 <div>
                                     <label for="cmbtiporol" class="form-label">Periodo</label>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbnivel" wire:model="filters.periodo">
+                                        name="choices-single-default" id="cmbnivel" wire:model.live="filters.periodo">
                                         @foreach ($tblrecords as $record) 
                                         <option value="{{$record->periodo}}" selected>{{$record->periodo}}</option>
                                         @endforeach                                
@@ -31,7 +31,7 @@
                                 <div>
                                     <label for="cmbtiporol" class="form-label">Mes</label>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbnivel" wire:model="filters.mes">
+                                        name="choices-single-default" id="cmbnivel" wire:model.live="filters.mes">
                                         
                                         @for($mes=1;$mes<=12;$mes++)                                
                                             <option value="{{$mes}}">{{$meses[$mes]}}</option> 
@@ -43,7 +43,7 @@
                                 <div>
                                     <label for="cmbtiporol" class="form-label">Producto</label>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbnivel" wire:model="filters.tiporol">
+                                        name="choices-single-default" id="cmbnivel" wire:model.live="filters.producto">
                                         <option value="" selected>All</option>
                                         @foreach ($tblproductos as $producto)
                                         <option value="{{$producto->codigo}}">{{$producto->nombre}}</option>

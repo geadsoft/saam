@@ -97,7 +97,6 @@ class VcRolPago extends Component
         
     }
 
-
     public function add($accion){  
         
         $this->grabar = $accion;
@@ -496,7 +495,7 @@ class VcRolPago extends Component
             return;
         }
 
-        $valor = $prestamo['valor'];
+        $valor = $prestamo;
 
         if ($objrubro['tipo']=='P'){
             $this->ingreso =  $this->ingreso + $valor;

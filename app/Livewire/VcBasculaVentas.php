@@ -43,7 +43,8 @@ class VcBasculaVentas extends Component
 
     public $filters = [
         'periodo' => 0,
-        'mes' => 0
+        'mes' => 0,
+        'producto' => ''
     ];
 
     public $activeTab=[
@@ -97,6 +98,9 @@ class VcBasculaVentas extends Component
     {
         
         $tblrecords = DB::connection('sqlsrv')->table('bascula_ventas as v')
+        ->when($this->filters['producto'],function($query){
+            return $query->where('v.item','like','%'.$this->filters['producto'].'%');
+        })
         ->where('periodo',$this->filters['periodo'])
         ->where('mes',$this->filters['mes'])
         ->where('TipoEgr','<>',99)

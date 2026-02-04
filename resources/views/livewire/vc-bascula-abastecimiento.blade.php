@@ -7,8 +7,9 @@
                         <h5 class="card-title mb-0 flex-grow-1">Pesos Realizados</h5>
                         <div class="flex-shrink-0">
                             <div class="d-flex flex-wrap gap-2">
-                                <a href="" class="btn btn-danger add-btn" target="_blank"><i class="ri-add-line align-bottom me-1"></i><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Crear tickets</font></font></a>
+                                <!--<a href="" class="btn btn-danger add-btn" target="_blank"><i class="ri-add-line align-bottom me-1"></i><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Crear tickets</font></font></a>-->
                                 <!--<button class="btn btn-soft-danger" id="remove-actions" onclick="deleteMultiple()"><i class="ri-delete-bin-2-line"></i></button>-->
+                                <a href="" wire:click.prevent="exportExcel()" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"><i class="ri-file-excel-2-line align-bottom fs-22"></i></a>
                             </div>
                         </div>
                     </div>
@@ -20,9 +21,9 @@
                                 <div>
                                     <label for="cmbtiporol" class="form-label">Periodo</label>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbnivel" wire:model="filters.periodo">
-                                        @foreach ($tblrecords as $record) 
-                                        <option value="{{$record->periodo}}" selected>{{$record->periodo}}</option>
+                                        name="choices-single-default" id="cmbnivel" wire:model.live="filters.periodo">
+                                        @foreach ($tblperiodo as $periodo) 
+                                        <option value="{{$periodo}}" selected>{{$periodo}}</option>
                                         @endforeach                                
                                     </select>
                                 </div>
@@ -31,8 +32,7 @@
                                 <div>
                                     <label for="cmbtiporol" class="form-label">Mes</label>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbnivel" wire:model="filters.mes">
-                                        
+                                        name="choices-single-default" id="cmbnivel" wire:model.live="filters.mes">
                                         @for($mes=1;$mes<=12;$mes++)                                
                                             <option value="{{$mes}}">{{$meses[$mes]}}</option> 
                                         @endfor                                 
@@ -43,7 +43,7 @@
                                 <div>
                                     <label for="cmbtiporol" class="form-label">Producto</label>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbnivel" wire:model="filters.tiporol">
+                                        name="choices-single-default" id="cmbnivel" wire:model.live="filters.producto">
                                         <option value="" selected>All</option>
                                         @foreach ($tblproductos as $producto)
                                         <option value="{{$producto->codigo}}">{{$producto->nombre}}</option>
@@ -51,7 +51,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xxl-2 col-sm-4">
+                            <!--<div class="col-xxl-2 col-sm-4">
                                 <div>
                                     <label for="cmbtiporol" class="form-label">Estado</label>
                                     <select class="form-select" data-choices data-choices-search-false
@@ -62,7 +62,7 @@
                                         <option value="A">ANULADA</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div>-->
                             <!--<div class="col-xxl-1 col-sm-4">
                                 <div>
                                     <label for="cmbtiporol" class="form-label">-</label>

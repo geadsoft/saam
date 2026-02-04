@@ -1,10 +1,14 @@
 <?php
 
 namespace App\Livewire;
+use App\Exports\AbastecimientoExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\Exportable;
 
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+
 
 class VcBasculaAbastecimiento extends Component
 {   
@@ -35,6 +39,7 @@ class VcBasculaAbastecimiento extends Component
 
     public $filters = [
         'periodo' => 0,
+        'producto' => '',
         'mes' => 0
     ];
 
@@ -81,6 +86,9 @@ class VcBasculaAbastecimiento extends Component
         $tblrecords = DB::connection('sqlsrv')->table('bascula_ventas as v')
         ->where('periodo',$this->filters['periodo'])
         ->where('mes',$this->filters['mes'])
+        ->when($this->filters['producto'],function($query){
+            return $query->where('v.item','like','%'.$this->filters['producto'].'%');
+        })
         ->where('TipoEgr','=',99)
         ->orderByRaw('FechaSalida desc,Documento desc')
         ->paginate(6);
@@ -132,6 +140,12 @@ class VcBasculaAbastecimiento extends Component
                 break;
         }
 
+    }
+
+    public function exportExcel(){
+
+        $data = json_encode($this->filters);
+        return Excel::download(new AbastecimientoExport($data), 'Pesos en Tanque Bascula.xlsx');
 
     }
 }

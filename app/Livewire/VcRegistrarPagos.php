@@ -9,6 +9,7 @@ use App\Models\TmRubrosrol;
 use App\Models\TmTiposrol;
 use App\Models\TmCompania;
 use App\Models\TdPlanillaRubros;
+use App\Models\TdHorasExtras;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
@@ -628,7 +629,24 @@ class VcRegistrarPagos extends Component
 
         $tblrecords = $this->rolIndividual();
 
-        //Datos Cia
+        //Horas Extras
+        $rubroHExtras = 9;
+        $hExtras = TdHorasExtras::query()
+        ->where('periodorol_id', $this->objWhere['periodoRol'])
+        ->select(
+            'persona_id',
+            DB::raw('SUM(extra25)   as extra25'),
+            DB::raw('SUM(monto25)   as monto25'),
+            DB::raw('SUM(extra50)   as extra50'),
+            DB::raw('SUM(monto50)   as monto50'),
+            DB::raw('SUM(extra100)  as extra100'),
+            DB::raw('SUM(monto100)  as monto100'),
+            DB::raw('SUM(total)     as total')
+        )
+        ->groupBy('persona_id')
+        ->get()
+        ->keyBy('persona_id'); // 👈 clave del array
+
         //Datos Cia
         $objCia = TmCompania::first()
         ->toArray();
@@ -686,6 +704,7 @@ class VcRegistrarPagos extends Component
             'etiqueta' => $etiqueta,
             'personas' =>$this->personas,
             'totales' => $objtotal,
+            'hextras' => $hExtras,
         ]);        
 
         return $pdf->setPaper('A4')->stream('Rol Individual.pdf');

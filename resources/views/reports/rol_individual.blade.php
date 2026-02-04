@@ -135,6 +135,22 @@
                                     <td class="text-left"> {{$etiqueta[$data->rubrosrol_id]}} </td>
                                     <td class="text-right"> {{number_format($data->valor,2)}}</td>
                                 </tr>
+                                    @if($data->rubrosrol_id==$rubroHExtras)
+                                        @if(isset($hextras[$record->persona_id]))
+                                        <tr>
+                                            <td class="text-left">HE25% ($hextras[$record->persona_id]->extra25) ($hextras[$record->persona_id]->monto25);</td>
+                                            <td class="text-right"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-left">HE50% ($hextras[$record->persona_id]->extra50) ($hextras[$record->persona_id]->monto50);</td>
+                                            <td class="text-right"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-left">HE100% ($hextras[$record->persona_id]->extra100) ($hextras[$record->persona_id]->monto100);</td>
+                                            <td class="text-right"></td>
+                                        </tr>
+                                        @endif
+                                    @endif
                                 @endif
 
                                 @endforeach
