@@ -11,13 +11,17 @@ use App\Models\TmContratos;
 
 
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class VcPrestamos extends Component
 {
+    use WithPagination;
+
     public $rubroId, $fecha, $mesgracia = true; 
     public $record, $tblperiodos=[];
-    public $cuotas;
+    public $cuotas=[];
     public $prestamoId;
+
 
     public function mount($id){
         
@@ -39,13 +43,23 @@ class VcPrestamos extends Component
         
         $this->rubroId = $tblrubros[0]['id'];
 
+        $tblprestamos =  TrPrestamosCabs::query()
+        ->join('tm_personas as p','p.id','=','tr_prestamos_cabs.persona_id')
+        ->paginate(9);
+
+
         return view('livewire.vc-prestamos',[
             'tblperiodos' => $this->tblperiodos,
             'tblpersonas' => $tblpersonas,
             'tblrubros' => $tblrubros,
             'tbltipo' => $tbltipo,
+            'tblprestamos' =>  $tblprestamos,
         ]);
         
+    }
+
+    public function paginationView(){
+        return 'vendor.livewire.bootstrap'; 
     }
 
     public function loadData(){
