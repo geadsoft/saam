@@ -72,6 +72,7 @@ Route::get('/bascula-compra/peso-tara/{id}',[App\Http\Controllers\BasculaControl
 Route::get('/bascula/certificados',[App\Http\Controllers\BasculaController::class, 'certificados'])->name('certificados');
 Route::get('/bascula/certificado-calidad/{tipo},{id}',[App\Http\Controllers\BasculaController::class, 'cert_calidad'])->name('cert_calidad');
 Route::get('/bascula/pcc',[App\Http\Controllers\BasculaController::class, 'pcc'])->name('pcc');
+Route::get('/refineria/balance-masico',[App\Http\Controllers\BasculaController::class, 'balance_masa'])->name('balance_masa');
 
 Route::get('/contabilidad/ccosto_cuentas',[App\Http\Controllers\ContabilidadController::class, 'ccosto_ctas'])->name('ccosto_ctas');
 Route::get('/contabilidad/auxiliar_contable/{periodo}/{cuenta}/{ccosto}',[App\Http\Controllers\ContabilidadController::class, 'auxiliar'])->name('ctas.auxiliar');

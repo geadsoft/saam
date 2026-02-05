@@ -67,4 +67,9 @@ class BasculaController extends Controller
     {
         return view('panel/negocio');
     }
+
+    public function balance_masa()
+    {
+        return view('panel/balance_masico');
+    }
 }

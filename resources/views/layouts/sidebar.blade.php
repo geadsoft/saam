@@ -56,6 +56,11 @@
                         </a>
                     </li>
                     @endcan
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="/refineria/balance-masico">
+                            <i class="ri-pie-chart-line"></i> <span>Balance Masico</span>
+                        </a>
+                    </li>
                     <div class="collapse menu-dropdown" id="sidebarDashboards">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
