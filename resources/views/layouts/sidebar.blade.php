@@ -542,6 +542,25 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link menu-link" href="#sidebarRrhhReporte" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarParametrosNomina">
+                                    <i class="ri-printer-fill"></i> <span>Reportes</span>
+                                </a>
+                                <div class="collapse menu-dropdown" id="sidebarRrhhReporte">
+                                    <ul class="nav nav-sm flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/rrhh/report-provisiones">
+                                                <span>Provisiones</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/rrhh/report-prestamos">
+                                                <span>Prestamos</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link menu-link" href="#sidebarParametrosNomina" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarParametrosNomina">
                                     <i class="ri-settings-3-line"></i> <span>Configuración</span>
                                 </a>

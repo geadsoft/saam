@@ -15,8 +15,7 @@
                                     <div class="flex-grow-1 ms-3">
                                         <p class="text-uppercase fw-semibold fs-13 text-muted mb-1">
                                             Total Prestamos</p>
-                                        <h4 class=" mb-0">$<span class="counter-value"
-                                                data-target="{{$prestamo->total}}">0</span></h4>
+                                        <h4 class=" mb-0">${{$prestamo->total}}</h4>
                                     </div>
 
                                 </div>
@@ -35,8 +34,7 @@
                                     <div class="flex-grow-1 ms-3">
                                         <p class="text-uppercase fw-semibold fs-13 text-muted mb-1">
                                             Cancelado</p>
-                                        <h4 class=" mb-0">$<span class="counter-value"
-                                                data-target="{{$prestamo->cancelado}}">0</span></h4>
+                                        <h4 class=" mb-0">${{$prestamo->cancelado}}</h4>
                                     </div>
 
                                 </div>
@@ -54,8 +52,7 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <p class="text-uppercase fw-semibold fs-13 text-muted mb-1">Por Cobrar</p>
-                                        <h4 class=" mb-0">$<span class="counter-value"
-                                                data-target="{{$prestamo->porcancelar}}">0</span></h4>
+                                        <h4 class=" mb-0">${{$prestamo->porcancelar}}</h4>
                                     </div>
 
                                 </div>
@@ -99,31 +96,31 @@
                                 </tr>
                             </thead>
                             <tbody class="list form-check-all">
-                                @foreach ($tblprestamos as $record)
+                                @foreach ($tblprestamos as $prestamo)
                                 <tr>
-                                    <td>{{$record->apellidos}} {{$record->nombres}}</td>
-                                    <td>{{date('d/m/Y', strtotime($record->fecha))}}</td>
-                                    <td>{{$record->id}}</td>
-                                    <td class="text-end">${{number_format($record->monto,2)}}</td>
-                                    <td class="text-end">{{$record->cuota}}</td>
+                                    <td>{{$prestamo->apellidos}} {{$prestamo->nombres}}</td>
+                                    <td>{{date('d/m/Y', strtotime($prestamo->fecha))}}</td>
+                                    <td>{{$prestamo->id}}</td>
+                                    <td class="text-end">${{number_format($prestamo->monto,2)}}</td>
+                                    <td class="text-end">{{ ($prestamo->pagos ?? 0) > 0 ? $prestamo->pagos : 0 }}/{{$prestamo->cuota}}</td>
                                     <td class="text-center">
-                                        @if($record->estado)
+                                        @if($prestamo->estado)
                                         <span class="badge badge-soft-success text-uppercase">Activo</span>
                                         @else
-                                        <span class="badge badge-soft-warning text-uppercase">Inactivo</span>
+                                        <span class="badge badge-soft-warning text-uppercase">Cancelado</span>
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         <ul class="list-inline hstack gap-2 mb-0">
                                             <li class="list-inline-item edit" data-bs-toggle="tooltip"
                                                 data-bs-trigger="hover" data-bs-placement="top" title="Ver detalle">
-                                                <a href="" wire:click.prevent="view({{ $record }})">
+                                                <a href="" wire:click.prevent="view({{ $prestamo }})">
                                                     <i class="las la-eye fs-22 text-info"></i>
                                                 </a>
                                             </li>
                                             <li class="list-inline-item edit" data-bs-toggle="tooltip"
                                                 data-bs-trigger="hover" data-bs-placement="top" title="Editar">
-                                                <a href="" wire:click.prevent="edit({{ $record }})">
+                                                <a href="" wire:click.prevent="edit({{ $prestamo }})">
                                                     <i class="ri-pencil-fill fs-16"></i>
                                                 </a>
                                             </li>
@@ -131,7 +128,7 @@
                                                 data-bs-trigger="hover" data-bs-placement="top" title="Eliminar">
                                                 <a class="text-danger d-inline-block remove-item-btn"
                                                     data-bs-toggle="modal" href=""
-                                                    wire:click.prevent="delete({{ $record->id }})">
+                                                    wire:click.prevent="delete({{ $prestamo->id }})">
                                                     <i class="ri-delete-bin-5-fill fs-16"></i>
                                                 </a>
                                             </li>
@@ -239,7 +236,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="row">
-                                                            <div class="col-4">
+                                                            <div class="col-6">
                                                                 <select type="select" class="form-select" data-trigger
                                                                     id="cmbperiodo"
                                                                     wire:model.defer="record.periodosrol_id" required>
@@ -250,7 +247,7 @@
                                                                     @endforeach
                                                                 </select>
                                                             </div>
-                                                            <div class="col-5">
+                                                            <div class="col-6">
                                                                 <div class="input-group mb-3">
                                                                     <label class="input-group-text">Monto</label>
                                                                     <input type="number"
@@ -260,7 +257,9 @@
                                                                     <label class="input-group-text">$</label>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-3">
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-4">
                                                                 <div class="input-group mb-0">
                                                                     <label class="input-group-text">Cuotas</label>
                                                                     <input type="text" class="form-control"
@@ -272,6 +271,25 @@
                                                                         <label class="form-check-label"
                                                                             for="record.imprimerol1">Mes Gracia</label>
                                                                     </div>
+                                                                </div>
+                                                            </div> 
+                                                            <div class="col-5">
+                                                                <div class="input-group mb-3">
+                                                                    <label class="input-group-text">Valor Cuota</label>
+                                                                    <input type="number"
+                                                                        class="form-control product-price"
+                                                                        id="txtvalor" step="0.01" 
+                                                                        wire:model.defer="record.valorcuota" required>
+                                                                    <label class="input-group-text">$</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                
+                                                                <div class="float-end">
+                                                                    <li class="list-inline-item edit" data-bs-toggle="tooltip"
+                                                                        data-bs-trigger="hover" data-bs-placement="top" title="Calcular Cuotas">
+                                                                        <a href="" wire:click.prevent="calculaPagos()" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"><i class="ri-thumb-up-line align-bottom fs-22"></i></a>
+                                                                    </li>                                                                    
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -294,7 +312,7 @@
                                                                             class="text-muted ms-1 fs-11"></span></p>
                                                                 </div>
                                                                 <div class="flex-shrink-0">
-                                                                    <h6 class="mb-0">{{record.monto}}</h6>
+                                                                    <h6 class="mb-0">{{$record['monto']}}</h6>
                                                                 </div>
                                                             </div>
                                                             <div class="d-flex mb-2">
@@ -303,7 +321,7 @@
                                                                             class="text-muted ms-1 fs-11"></span></p>
                                                                 </div>
                                                                 <div class="flex-shrink-0">
-                                                                    <h6 class="mb-0">{{record.monto}}</h6>
+                                                                    <h6 class="mb-0">{{$record['ncuota']}}</h6>
                                                                 </div>
                                                             </div>
                                                             <div class="d-flex">
@@ -311,22 +329,22 @@
                                                                     <p class="fs-13 mb-0">Ultima Cuota</p>
                                                                 </div>
                                                                 <div class="flex-shrink-0">
-                                                                    <h6 class="mb-0">{{record.monto}}</h6>
+                                                                    <h6 class="mb-0">{{date('d/m/Y', strtotime($record['ultimopago']))}}</h6>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="mt-3 pt-2">
-                                                            <button type="button"
-                                                                class="btn btn-success w-100">Grabar</button>
+                                                            <button type="submit" class="btn btn-success w-100">Grabar</button>
                                                         </div>
                                                     </div>
                                                     </fieldset>
                                                 </div>
                                                 <div class="tab-pane" id="cryptoSell" role="tabpanel">
                                                     <div class="p-3">
+                                                        <fieldset {{$fieldset}}>
                                                         <div class="table-responsive  mb-3">
                                                             <div style="overflow-x:auto;">
-                                                                <table class="table table-nowrap align-middle"
+                                                                <table class="table table-sm table-nowrap align-middle"
                                                                     style="width:100%">
                                                                     <thead class="text-muted table-light">
                                                                         <tr class="text-uppercase">
@@ -337,14 +355,17 @@
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody class="list form-check-all">
-                                                                        @foreach ($cuotas as $record)
+                                                                        @foreach ($cuotas as $key => $cuota)
                                                                         <tr>
-                                                                            <td>{{$record->cuota}}</td>
-                                                                            <td>{{date('d/m/Y', strtotime($record->fecha))}}
-                                                                            </td>
-                                                                            <td>{{$record->valor}}</td>
+                                                                            <td>{{$cuota['cuota']}}</td>
+                                                                            <td>{{date('d/m/Y', strtotime($cuota['fecha']))}}</td>
                                                                             <td>
-                                                                                @if($record->estado=='P')
+                                                                                <input type="number"
+                                                                                class="form-control form-control-sm product-price"
+                                                                                id="txtvalor" step="0.01" wire:model.defer="cuotas.{{$key}}.valor" required>
+                                                                            </td>
+                                                                            <td>
+                                                                                @if($cuota['estado']=='P')
                                                                                 <span
                                                                                     class="badge badge-soft-success text-uppercase">Pendiente</span>
                                                                                 @else
@@ -352,35 +373,7 @@
                                                                                     class="badge badge-soft-info text-uppercase">Cancelado</span>
                                                                                 @endif
                                                                             </td>
-                                                                            <td>
-                                                                                <ul
-                                                                                    class="list-inline hstack gap-2 mb-0">
-                                                                                    <li class="list-inline-item edit"
-                                                                                        data-bs-toggle="tooltip"
-                                                                                        data-bs-trigger="hover"
-                                                                                        data-bs-placement="top"
-                                                                                        title="Edit">
-                                                                                        <a href=""
-                                                                                            wire:click.prevent="edit({{ $record }})">
-                                                                                            <i
-                                                                                                class="ri-pencil-fill fs-16"></i>
-                                                                                        </a>
-                                                                                    </li>
-                                                                                    <li class="list-inline-item"
-                                                                                        data-bs-toggle="tooltip"
-                                                                                        data-bs-trigger="hover"
-                                                                                        data-bs-placement="top"
-                                                                                        title="Remove">
-                                                                                        <a class="text-danger d-inline-block remove-item-btn"
-                                                                                            data-bs-toggle="modal"
-                                                                                            href=""
-                                                                                            wire:click.prevent="delete({{ $record->id }})">
-                                                                                            <i
-                                                                                                class="ri-delete-bin-5-fill fs-16"></i>
-                                                                                        </a>
-                                                                                    </li>
-                                                                                </ul>
-                                                                            </td>
+                                                                            
                                                                         </tr>
                                                                         @endforeach
                                                                     </tbody>
@@ -403,6 +396,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        </fieldset>
                                                     </div>
                                                 </div>
                                             </div>

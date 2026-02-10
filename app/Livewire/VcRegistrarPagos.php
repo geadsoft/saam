@@ -705,6 +705,7 @@ class VcRegistrarPagos extends Component
             'personas' =>$this->personas,
             'totales' => $objtotal,
             'hextras' => $hExtras,
+            'rubroHExtras' => $rubroHExtras,
         ]);        
 
         return $pdf->setPaper('A4')->stream('Rol Individual.pdf');

@@ -33,7 +33,7 @@ class RecursosHumanosController extends Controller
 
     public function comprobante($id,$tipo)
     {
-        return view('comprobanterol',['id' => $id, 'tipo' => $tipo]);
+        return view('rrhh/comprobanterol',['id' => $id, 'tipo' => $tipo]);
     }
 
     public function prestamos()
@@ -175,5 +175,12 @@ class RecursosHumanosController extends Controller
     {
         return view('rrhh/vacaciones');
     }
+
+    public function report_prestamo()
+    {
+        return view('rrhh/reportprestamos');
+    }
+
+    
 
 }   

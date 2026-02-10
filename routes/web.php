@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContabilidadController;
 use App\Http\Controllers\ImpresionController;
 use App\Livewire\VcRegistrarPagos;
+use App\Livewire\VcReportPrestamos;
 
 
 /*
@@ -59,6 +60,7 @@ Route::get('/payroll/horas-extras',[App\Http\Controllers\RecursosHumanosControll
 Route::get('/rrhh/permisos',[App\Http\Controllers\RecursosHumanosController::class, 'permisos'])->name('permisos');
 Route::get('/rrhh/vacaciones',[App\Http\Controllers\RecursosHumanosController::class, 'vacaciones'])->name('vacaciones');
 Route::get('/rrhh/vacaciones/id',[App\Http\Controllers\RecursosHumanosController::class, 'detalle_vacaciones'])->name('detalle_vacaciones');
+Route::get('/rrhh/report-prestamos',[App\Http\Controllers\RecursosHumanosController::class, 'report_prestamo'])->name('report_prestamo');
 
 
 Route::get('/bascula/panel',[App\Http\Controllers\BasculaController::class, 'panel'])->name('panel');
@@ -85,14 +87,15 @@ Route::get('/file/staff-edit/{id}',[App\Http\Controllers\RecursosHumanosControll
 Route::get('/file/contracts',[App\Http\Controllers\RecursosHumanosController::class, 'contratos'])->name('contratos');
 
 Route::get('/calendario',[App\Http\Controllers\RecursosHumanosController::class, 'calendario'])->name('calendario');
-
-Route::get('/download-pdf/nomina/{data}',[VcRegistrarPagos::class, 'downloadPDF']);
-Route::get('/download-pdf/pagorol/{data}',[VcRegistrarPagos::class, 'downloadRolPDF']);
-Route::get('/download-pdf/pagos/{data}',[VcRegistrarPagos::class, 'downloadPagosPDF'])->name('pagos.pdf');
 Route::get('/peso_compra/pdf/{id}', [ImpresionController::class, 'pesoCompra_verPdf'])->name('ticketCompra.pdf');
 Route::get('/peso_compra/pdf/imprimir/{id}', [ImpresionController::class, 'pesoCompra_PdfAutoPrint'])->name('ticketCompra.pdf.print');
 Route::get('/peso_compra/pdf/descargar/{id}', [ImpresionController::class, 'pesoCompra_descargarPdf'])->name('ticketCompra.pdf.download');
 Route::get('/certificado/pdf/{tipo},{id}', [ImpresionController::class, 'certificado_verPdf'])->name('Certificado.pdf');
+
+Route::get('/download-pdf/nomina/{data}',[VcRegistrarPagos::class, 'downloadPDF']);
+Route::get('/download-pdf/pagorol/{data}',[VcRegistrarPagos::class, 'downloadRolPDF']);
+Route::get('/download-pdf/pagos/{data}',[VcRegistrarPagos::class, 'downloadPagosPDF'])->name('pagos.pdf');
+Route::get('/download-pdf/rrhh-prestamos/{data}',[VcReportPrestamos::class, 'downloadPDF'])->name('prestamo.pdf');
 
 Route::post('import-data-excel',[VcImportExcel::class, 'import'])->name('import.excel');
 
