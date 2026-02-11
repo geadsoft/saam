@@ -17,7 +17,7 @@ use App\Models\TdIngresosProyectados;
 use Livewire\WithPagination;
 
 use Illuminate\Support\Facades\DB;
-
+use Carbon\Carbon;
 use Livewire\Component;
 
 class VcRolPago extends Component
@@ -267,8 +267,14 @@ class VcRolPago extends Component
     
         $fecha1 = date_create($fechaIng);
         $fecha2 = date_create($this->fecharol);
-        $dias = $fecha1->diff($fecha2);
-        $dias = intval($dias->format('%a'));
+        //$dias = $fecha1->diff($fecha2);
+        //$dias = intval($dias->format('%a'));
+
+        $fechaIngreso = Carbon::parse($fechaIng);
+        $fechaCorte   = Carbon::parse($this->fecharol);
+
+        $fechaMes13  = $fechaIngreso->copy()->addYear()->addMonth();
+        $aplicaFondo = $fechaCorte->gte($fechaMes13);
         
         $valor = $rolbase->monto * $rubro['importe'];
        
@@ -293,7 +299,8 @@ class VcRolPago extends Component
         }
         // ------
 
-        if ($dias>365){
+        //if ($dias>365){
+        if ($aplicaFondo){
             $this->grabaRubros($objPersona['id'],$rubrofReserva,$valor);
         } 
         

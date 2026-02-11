@@ -15,13 +15,15 @@ use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Illuminate\Support\Facades\DB;
 
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
+class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles, WithEvents
 {
     use Exportable;
 
@@ -53,7 +55,7 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
         $provision = TmCuentasContables::query()
         ->join('tm_rubrosrols as r','r.id','=','tm_cuentas_contables.rubro_id')
         ->select('tm_cuentas_contables.rubro_id','r.etiqueta')
-        ->where('tm_cuentas_contables.tipo','P')
+        ->where('tm_cuentas_contables.comprobante','P')
         ->groupBy('rubro_id','r.etiqueta')
         ->get();
 
@@ -68,14 +70,13 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
         ->join('tm_rubrosrols as r','r.id','=','td_rol_pagos.rubrosrol_id')
         ->select('p.nui','r.tipo','r.etiqueta','r.id','td_rol_pagos.valor')
         ->where('td_rol_pagos.rolpago_id',$this->rolpagoId)
-        ->whereNotIn('r.id', function ($query) {
-            $query->select('rubro_id')
-                ->from('tm_cuentas_contables')
-                ->where('tipo', 'P');
-        })
         ->get();
 
-        
+        $tot = TdRolPagos::query()
+        ->join('tm_personas as p','p.id','=','td_rol_pagos.persona_id')
+        ->select('p.nui','td_rol_pagos.rubro_total','td_rol_pagos.valor')
+        ->where('td_rol_pagos.rolpago_id',$this->rolpagoId)
+        ->get();
 
         $rubros = TdRolPagos::query()
         ->join('tm_rubrosrols as r','r.id','=','td_rol_pagos.rubrosrol_id')
@@ -83,7 +84,7 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
         ->whereNotIn('r.id', function ($query) {
             $query->select('rubro_id')
                 ->from('tm_cuentas_contables')
-                ->where('tipo', 'P');
+                ->where('comprobante', 'P');
         })
         ->select('r.id','r.tipo','r.etiqueta')
         ->groupBy('r.id','r.tipo','r.etiqueta')
@@ -126,13 +127,13 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
                     $this->detalle[$id][$rubroId] = 0;
                 }
                 if ($key=='P'){
-                    $this->detalle[$id]['TotIng'] = 0;
+                    $this->detalle[$id]['TOTING'] = 0;
                 }else{
-                    $this->detalle[$id]['TotEgr'] = 0;
+                    $this->detalle[$id]['TOTEGR'] = 0;
                 }
                
             }
-            $this->detalle[$id]['netoPagar'] = 0;
+            $this->detalle[$id]['TOTPAG'] = 0;
             $this->detalle[$id]['fpago'] = '';
             $this->detalle[$id]['ctabco'] = '';
             $this->detalle[$id]['tipocta'] = '';
@@ -140,18 +141,23 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
         }
 
         foreach($personas as $person){
-
+            $id = $person->nui;
             foreach($provision as $provs){
-                $rubroId = $provs->id;
+                $rubroId = $provs->rubro_id;
                 $this->detalle[$id][$rubroId] = 0;
             }
-        
         }
 
         //Asigna Valor
         foreach($det as $recno){
             $personaId = $recno->nui;
             $rubroId = $recno->id;
+            $this->detalle[$personaId][$rubroId] = $recno->valor;
+        }
+
+        foreach($tot as $recno){
+            $personaId = $recno->nui;
+            $rubroId = $recno->rubro_total;
             $this->detalle[$personaId][$rubroId] = $recno->valor;
         }
         
@@ -185,9 +191,9 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
             'C' => 15,
         ];
 
-        $column = $this->colum['ing']+$this->colum['egr']+7;
+        $column = $this->colum['ing']+$this->colum['egr']+8;
 
-        for ($i = 3; $i <= $column; $i++) { // 3 = C, 24 = X
+        for ($i = 4; $i <= $column; $i++) { // 3 = C, 24 = X
             $columna = Coordinate::stringFromColumnIndex($i);
             $widths[$columna] = 15;
         }
@@ -222,6 +228,13 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
         $celda = Coordinate::stringFromColumnIndex($letraCol).'5';
         $sec4 = $sec4.$celda;
 
+        $letraCol = $letraCol+1;
+        $celda = Coordinate::stringFromColumnIndex($letraCol).'5';
+        $sec4 = $celda.':';
+        $letraCol = $this->colum['ing']+$this->colum['egr']+$this->colum['pro']+13;
+        $celda = Coordinate::stringFromColumnIndex($letraCol).'5';
+        $sec4 = $sec4.$celda;
+
         $style = [
             'alignment' => [
                 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
@@ -238,6 +251,7 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
         $sheet->getStyle($sec2)->applyFromArray($style);
         $sheet->getStyle($sec3)->applyFromArray($style);
         $sheet->getStyle($sec4)->applyFromArray($style);
+        $sheet->getStyle($sec5)->applyFromArray($style);
 
         $countColumn = $this->colum['ing']+$this->colum['egr']+$this->colum['pro']+13;
         $letraColumna = Coordinate::stringFromColumnIndex($countColumn);
@@ -248,6 +262,52 @@ class RecursosHumanosExport implements FromView, WithColumnWidths, WithStyles
         
     }
 
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+    
+                $sheet = $event->sheet->getDelegate();
+    
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+                //$highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
+                $highestColumnIndex = $this->colum['ing']+$this->colum['egr']+9;
+                $totalRow = $highestRow + 1;
+    
+                // Texto TOTAL
+                $sheet->setCellValue('C' . $totalRow, 'TOTALES =>');
+    
+                // Desde columna D (4) en adelante
+                for ($col = 4; $col <= $highestColumnIndex; $col++) {
+    
+                    $columnLetter = Coordinate::stringFromColumnIndex($col);
+    
+                    $sheet->setCellValue(
+                        $columnLetter . $totalRow,
+                        "=SUM({$columnLetter}7:{$columnLetter}{$highestRow})"
+                    );
+                }
+
+                $colini = $highestColumnIndex+5;
+                $highestColumnIndex = $highestColumnIndex+$this->colum['pro']+4;
+                for ($col = $colini; $col <= $highestColumnIndex; $col++) {
+    
+                    $columnLetter = Coordinate::stringFromColumnIndex($col);
+    
+                    $sheet->setCellValue(
+                        $columnLetter . $totalRow,
+                        "=SUM({$columnLetter}7:{$columnLetter}{$highestRow})"
+                    );
+                }
+
+                // Negrita en fila total
+                $sheet->getStyle("A{$totalRow}:{$highestColumn}{$totalRow}")
+                    ->getFont()
+                    ->setBold(true);
+            },
+        ];
+    }
 
 }
 

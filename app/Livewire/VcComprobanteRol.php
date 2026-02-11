@@ -83,7 +83,7 @@ class VcComprobanteRol extends Component
     public function procesar(){
         
         $fecha   = strtotime($this->fecha);
-        DB::connection('sqlsrv')->table('SGI_Con_Cab')->insert(
+        /*DB::connection('sqlsrv')->table('SGI_Con_Cab')->insert(
             array(
                    'id_cia' =>   '2', 
                    'mes'    =>   date('m',$fecha),
@@ -131,7 +131,7 @@ class VcComprobanteRol extends Component
                     'fecha_registro' => '',
                     )
                 );
-       }
+       }*/
 
        $this->diario->update([
         'documento' => $conCab->documento,

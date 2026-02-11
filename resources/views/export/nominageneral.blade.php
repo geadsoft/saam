@@ -57,18 +57,22 @@
                     <td>{{$records[$per][$data['id']]}}</td>
                 @endforeach
                 @if($key=='P')
-                    <td>{{$records[$per]['TotIng']}}</td>
+                    <td>{{$records[$per]['TOTING']}}</td>
                 @else
-                    <td>{{$records[$per]['TotEgr']}}</td>
+                    <td>{{$records[$per]['TOTEGR']}}</td>
                 @endif
             @endforeach
-            <td>{{$record['netoPagar']}}</td>
+            <td>{{$record['TOTPAG']}}</td>
             <td>{{$record['fpago']}}</td>
             <td>{{$record['ctabco']}}</td>
             <td>{{$record['tipocta']}}</td>
             <td>{{$record['bco']}}</td>
             @foreach ($provision as $prov)
+                @if(isset($records[$per][$prov->rubro_id]))
                 <td>{{$records[$per][$prov->rubro_id]}}</td>
+                @else
+                <td>0.00</td>    
+                @endif
             @endforeach
         </tr>
     @endforeach
