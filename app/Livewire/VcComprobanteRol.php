@@ -83,6 +83,38 @@ class VcComprobanteRol extends Component
     public function procesar(){
         
         $fecha   = strtotime($this->fecha);
+
+        $data = [
+            'cabecera' => [
+                'id_cia' => '2',
+                'mes' => date('m', $fecha),
+                'periodo' => date('Y', $fecha),
+                'tipo' => 'DN',
+                'documento' => '',
+                'fecha' => date('Ymd', strtotime($this->diario['fecha'])),
+                'observaciones' => $this->diario['observacion'],
+                'debito' => $this->diario['debito'],
+                'credito' => $this->diario['credito'],
+                'estatus' => 'C',
+                'modulo' => 'ROL',
+                'Id_Origen' => $this->diario['id'],
+            ],
+            'detalle' => []
+        ];
+
+        foreach ($this->detalle as $key => $cuenta) {
+            $data['detalle'][] = [
+                'linea' => $key + 1,
+                'cuenta' => $cuenta['cuenta'],
+                'detalle' => $cuenta['detalle'],
+                'tipovalor' => $cuenta['naturaleza'],
+                'valor' => $cuenta['valor'],
+                'GastoDeducible' => $cuenta['deducible'],
+                'CentroCosto' => $cuenta['ccosto'],
+            ];
+        }
+
+        
         /*DB::connection('sqlsrv')->table('SGI_Con_Cab')->insert(
             array(
                    'id_cia' =>   '2', 
