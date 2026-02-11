@@ -46,7 +46,7 @@
                                     <li><a class="dropdown-item" href="/nomina/view-detalle/{{$rolpagoId}}"><i class="ri-stack-line align-bottom me-2 text-muted"></i> Detalle Rubros </a></li>
                                 </ul>-->
                                 <a href="" wire:click.prevent="viewRubros({{ $rolpagoId}})" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"><i class="ri-share-circle-line align-bottom fs-22"></i></a>
-                                <a href="" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"><i class="ri-file-excel-2-line align-bottom fs-22"></i></a>                               
+                                <a href="" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" wire:click.prevent="exportExcel"><i class="ri-file-excel-2-line align-bottom fs-22"></i></a>                               
                             </div>
                         </div>
                     </div>

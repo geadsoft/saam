@@ -14,6 +14,10 @@ use App\Models\TdHorasExtras;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Luecano\NumeroALetras\NumeroALetras;
+
+use App\Exports\RecursosHumanosExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\Exportable;
 use PDF;
 
 class VcRegistrarPagos extends Component
@@ -760,8 +764,12 @@ class VcRegistrarPagos extends Component
 
     }
 
+    public function exportExcel(){
 
-    
+        //$data = json_encode($this->filters);
+        return Excel::download(new RecursosHumanosExport($this->rolpagoId), 'Nomina General.xlsx');
+
+    }
 
 }
 
