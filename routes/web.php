@@ -59,7 +59,7 @@ Route::get('/payroll/comprobante/{id},{tipo}',[App\Http\Controllers\RecursosHuma
 Route::get('/payroll/horas-extras',[App\Http\Controllers\RecursosHumanosController::class, 'hextras'])->name('hextras');
 Route::get('/rrhh/permisos',[App\Http\Controllers\RecursosHumanosController::class, 'permisos'])->name('permisos');
 Route::get('/rrhh/vacaciones',[App\Http\Controllers\RecursosHumanosController::class, 'vacaciones'])->name('vacaciones');
-Route::get('/rrhh/vacaciones/id',[App\Http\Controllers\RecursosHumanosController::class, 'detalle_vacaciones'])->name('detalle_vacaciones');
+Route::get('/rrhh/vacaciones-historial/{id}',[App\Http\Controllers\RecursosHumanosController::class, 'detalle_vacaciones'])->name('detalle_vacaciones');
 Route::get('/rrhh/report-prestamos',[App\Http\Controllers\RecursosHumanosController::class, 'report_prestamo'])->name('report_prestamo');
 
 

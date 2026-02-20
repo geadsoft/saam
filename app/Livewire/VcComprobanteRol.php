@@ -8,6 +8,7 @@ use App\Models\TmCuentasContables;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class VcComprobanteRol extends Component
 {
@@ -41,7 +42,6 @@ class VcComprobanteRol extends Component
 
         $tcrolPago = TcRolPagos::find($id);
         
-
         if ($this->tipo=='P'){
             $this->comprobanteId = $tcrolPago['diarioProvision_id'];
         }else{
@@ -75,13 +75,13 @@ class VcComprobanteRol extends Component
         ->get();
 
         $this->totalDebe  = $this->detalle->where('naturaleza','D')->sum('valor');
-        $this->totalHaber = $this->detalle->where('naturaleza','D')->sum('valor');
+        $this->totalHaber = $this->detalle->where('naturaleza','C')->sum('valor');
         $this->diferencia = $this->totalDebe-$this->totalHaber;
 
     }
 
     public function procesar(){
-        
+       
         $fecha   = strtotime($this->fecha);
 
         $data = [
@@ -107,13 +107,21 @@ class VcComprobanteRol extends Component
                 'linea' => $key + 1,
                 'cuenta' => $cuenta['cuenta'],
                 'detalle' => $cuenta['detalle'],
-                'tipovalor' => $cuenta['naturaleza'],
+                'tipovalor' => ($cuenta['naturaleza']=='D') ? 'DB' : 'CR',
                 'valor' => $cuenta['valor'],
                 'GastoDeducible' => $cuenta['deducible'],
                 'CentroCosto' => $cuenta['ccosto'],
             ];
         }
 
+        $response = Http::timeout(30)
+        ->withToken(env('API_CONTABILIDAD_TOKEN'))
+        ->post('http://181.198.111.178/api-erp/api/contabilidad/rol', $data);
+        
+
+        if (!$response->successful()) {
+            throw new \Exception('Error API Contabilidad: '.$response->body());
+        }
         
         /*DB::connection('sqlsrv')->table('SGI_Con_Cab')->insert(
             array(
@@ -165,8 +173,9 @@ class VcComprobanteRol extends Component
                 );
        }*/
 
+       $data = $response->json();
        $this->diario->update([
-        'documento' => $conCab->documento,
+        'documento' => $response['documento'],
         'estado' => 'P',
         ]);
 

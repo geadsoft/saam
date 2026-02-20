@@ -11,8 +11,7 @@
                             </div>
                             <div class="col-xxl-4 col-sm-4">
                                 <select class="form-select" data-choices data-choices-search-false
-                                    name="choices-single-default" id="cmbnivel" wire:model.defer="tiporolId"
-                                    wire:change='render()'>
+                                    name="choices-single-default" id="cmbnivel" wire:model.live="tiporolId">
                                     @foreach ($tbltiposrols as $tipo)
                                     <option value="{{$tipo->id}}" selected>{{$tipo->descripcion}}</option>
                                     @endforeach
@@ -20,7 +19,7 @@
                             </div>
                             <div class="col-sm-2">
                                 <select class="form-select" js-example-basic-single name="choices-single-default"
-                                    id="cmbnivel" wire:model.defer="tipoPago" wire:change='render()'>
+                                    id="cmbnivel" wire:model.live="tipoPago">
                                     <option value="Q" selected>Quincenal</option>
                                     <option value="M" selected>Mensual</option>
                                 </select>

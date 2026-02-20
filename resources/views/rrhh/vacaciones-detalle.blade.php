@@ -10,14 +10,16 @@
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
-            Gestión
+            Vacaciones
         @endslot
         @slot('title')
-            Vacaciones
+            Detalle de Vacaciones
         @endslot
     @endcomponent
 
-    @livewire('vc-vacaciones')
+    @livewire('vc-vacaciones-historial',[
+        'id' => $id,
+    ])
 
 @endsection
 
@@ -39,20 +41,16 @@
             $('#showModal').modal('hide');
         })
 
-        window.addEventListener('show-aprobar', event => {
-            $('#frmAprobar').modal('show');
+        window.addEventListener('show-delete', event => {
+            $('#deleteOrder').modal('show');
         })
 
-        window.addEventListener('hide-aprobar', event => {
-            $('#frmAprobar').modal('hide');
+        window.addEventListener('hide-delete', event => {
+            $('#deleteOrder').modal('hide');
         })
 
         window.addEventListener('msg-grabar', event => {
             swal("¡Grabado!", "Registro ha sido grabado exitosamente!", "success");
-        })
-
-        window.addEventListener('msg-actualizar', event => {
-            swal("Actualizado!", "Registro ha sido actualizado exitosamente!", "success");
         })
 
         window.addEventListener('msg-actualizar', event => {

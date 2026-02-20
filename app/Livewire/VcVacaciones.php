@@ -19,7 +19,7 @@ class VcVacaciones extends Component
 {
     use WithPagination;
 
-    public $tblperiodos, $personas, $showEditModal, $periodoContable;
+    public $tblperiodos, $personas, $showEditModal, $periodoContable, $selectValue, $selectId;
     public $arrevent, $record=[];
 
     public $estado=[
@@ -32,7 +32,8 @@ class VcVacaciones extends Component
         'periodo' => '',
         'area' => '',
         'departamento' => '',
-        'tab' => 'vacaciones'
+        'buscar' => '',
+        'tab' => 'vacaciones'      
     ];
 
     public function mount()
@@ -60,8 +61,10 @@ class VcVacaciones extends Component
         ->join('tm_personas as p','p.id','=','tm_contratos.persona_id')
         ->when(filled($this->filters['departamento']), fn($q) =>
             $q->where('tm_contratos.departamento_id', $this->filters['departamento']))
-        ->when(filled($this->filters['area']), fn($q) =>
-            $q->where('tm_contratos.area_id', $this->filters['area']))
+        ->when($this->filters['buscar'],function($query){
+            return $query->where('nombres','like','%'.$this->filters['buscar'].'%')
+                        ->orWhere('apellidos','like','%'.$this->filters['buscar'].'%');
+        })
         ->orderBy('apellidos')
         ->get();
 
@@ -71,6 +74,12 @@ class VcVacaciones extends Component
         ->join('tm_personas as p','p.id','=','td_solicitud_vacaciones.persona_id')
         ->join('tm_contratos as c','c.persona_id','=','p.id')
         ->join('tm_cargocias as cc','c.cargo_id','=','cc.id')
+        ->when(filled($this->filters['departamento']), fn($q) =>
+            $q->where('c.departamento_id', $this->filters['departamento']))
+        ->when($this->filters['buscar'],function($query){
+            return $query->where('p.nombres','like','%'.$this->filters['buscar'].'%')
+                        ->orWhere('p.apellidos','like','%'.$this->filters['buscar'].'%');
+        })
         ->select('p.nombres','p.apellidos','cc.descripcion as cargo','td_solicitud_vacaciones.*')
         ->paginate(12);
 
@@ -115,11 +124,17 @@ class VcVacaciones extends Component
             '=',
             'p.id'
         )
-
+        ->when(filled($this->filters['departamento']), fn($q) =>
+            $q->where('d.departamento_id', $this->filters['departamento']))
+        ->when($this->filters['buscar'],function($query){
+            return $query->where('p.nombres','like','%'.$this->filters['buscar'].'%')
+                        ->orWhere('p.apellidos','like','%'.$this->filters['buscar'].'%');
+        })
         ->select(
             'p.id',
             'p.nombres',
             'p.apellidos',
+            'p.foto',
             'a.descripcion as area',
             'd.descripcion as departamento',
             DB::raw('COALESCE(pv.disponibles, 0) AS disponibles'),
@@ -173,10 +188,12 @@ class VcVacaciones extends Component
 
         // Validación básica
         if ($fin->lessThanOrEqualTo($inicio)) {
-            throw new \Exception('La fecha/hora final debe ser mayor a la inicial');
+
+            $this->addError('fecha_fin', 'La fecha/hora final debe ser mayor a la inicial.');
+            return;
         }
 
-            // Total días (laborales o calendario)
+        // Total días (laborales o calendario)
         $totalDias = $this->calculaTiempo($inicio,$fin);
         $tiempo = $totalDias;
         $tipoPermiso = 'dias';
@@ -214,30 +231,39 @@ class VcVacaciones extends Component
     //Aprobar Solicitud
     public function aprobar($requestId)
     {
-        DB::transaction(function () use ($requestId) {
+        $result  = TdSolicitudVacaciones::find($requestId);
+        $this->selectValue = $result->persona->apellidos.' '.$result->persona->nombres;
+        $this->selectId = $result->id;
+        $this->dispatch('show-aprobar');
+    }
 
-            $request = TdSolicitudVacaciones::lockForUpdate()->findOrFail($requestId);
+    public function aprobarVacaciones()
+    {
+        DB::transaction(function () {
 
-            if ($request->estado !== 'PENDIENTE') {
+            $request = TdSolicitudVacaciones::lockForUpdate()->findOrFail($this->selectId);
+
+            if ($request->estado !== 'S') {
                 throw new \Exception('Solicitud ya gestionada');
+                return;
             }
 
-            $diasDisponibles = VacationService::getAvailableDays($request->employee_id);
+            $diasDisponibles = VacationService::getAvailableDays($request->persona_id);
 
             if ($request->dias > $diasDisponibles) {
                 throw new \Exception('Días insuficientes');
+                return;
             }
 
             VacationService::consumeDaysFIFO($request);
 
-            $request->estado = 'APROBADA';
+            $request->estado = 'A';
             $request->save();
         });
 
-        //$this->emit('vacationUpdated');
+        $this->dispatch('hide-aprobar');
     }
-
-    
+        
     //Elimina Solicitudes Aprobadas
     public function deleteAprobada($requestId)
     {
@@ -266,49 +292,12 @@ class VcVacaciones extends Component
 
     public function calculaTiempo($inicio,$fin){
 
-        $horasLaboralesPorDia = 8;
-        $totalHoras = 0;
-
-        $fecha = $inicio->copy()->startOfDay();
-
-        while ($fecha->lte($fin)) {
-
-            // Saltar fines de semana (opcional)
-            if ($fecha->isWeekend()) {
-                $fecha->addDay();
-                continue;
-            }
-
-            $inicioDia = $fecha->copy()->setTime(8, 0);
-            $finDia    = $fecha->copy()->setTime(17, 0);
-
-            // Ajustar primer día
-            if ($fecha->isSameDay($inicio)) {
-                $inicioDia = $inicio;
-            }
-
-            // Ajustar último día
-            if ($fecha->isSameDay($fin)) {
-                $finDia = $fin;
-            }
-
-            if ($finDia->greaterThan($inicioDia)) {
-                $horasDia = $inicioDia->diffInMinutes($finDia) / 60;
-
-                // Descontar almuerzo (si cruza 12–13)
-                if ($inicioDia->lt($fecha->copy()->setTime(12,0)) &&
-                    $finDia->gt($fecha->copy()->setTime(13,0))) {
-                    $horasDia -= 1;
-                }
-
-                $totalHoras += max(0, $horasDia);
-            }
-
-            $fecha->addDay();
+        if ($fin->lessThan($inicio)) {
+            return 0;
         }
 
-        $totalDias = round($totalHoras / $horasLaboralesPorDia, 2);
-        return $totalDias;
+        return $inicio->startOfDay()->diffInDays($fin->startOfDay()) + 1;
+
     }
 
     public function arrayObject($eventos){

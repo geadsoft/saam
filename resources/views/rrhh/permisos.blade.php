@@ -16,7 +16,7 @@
         @endslot
     @endcomponent
 
-    @livewire('vcpermisos')
+    @livewire('vc-permisos')
 
 @endsection
 

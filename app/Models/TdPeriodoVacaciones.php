@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TdMovimientosVacaciones;
 
 class TdPeriodoVacaciones extends Model
 {
@@ -15,4 +16,9 @@ class TdPeriodoVacaciones extends Model
         'dias_generados',
         'dias_usados',
     ];
+
+    public function movimientos()
+    {
+        return $this->hasMany(TdMovimientosVacaciones::class, 'periodo_vacacion_id');
+    }
 }

@@ -176,6 +176,11 @@ class RecursosHumanosController extends Controller
         return view('rrhh/vacaciones');
     }
 
+    public function detalle_vacaciones($id)
+    {
+        return view('rrhh/vacaciones-detalle',['id' => $id]);
+    }
+
     public function report_prestamo()
     {
         return view('rrhh/reportprestamos');

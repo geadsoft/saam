@@ -134,12 +134,12 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-header">
-
                             <div class="row g-3">
                                 <div class="col-xxl-5 col-sm-6">
+                                    <label for="cmbtiporol" class="form-label">Buscar</label>
                                     <div class="search-box">
                                         <input type="text" class="form-control search"
-                                            placeholder="Burcar por descripción..." wire:model="filters.descripcion">
+                                            placeholder="Burcar por descripción..." wire:model.live="filters.buscar">
                                         <i class="ri-search-line search-icon"></i>
                                     </div>
                                 </div>
@@ -147,7 +147,7 @@
                                     <div>
                                         <label for="cmbtiporol" class="form-label">Estado</label>
                                         <select class="form-select" data-choices data-choices-search-false
-                                            name="choices-single-default" id="cmbestado" wire:model="filters.estado">
+                                            name="choices-single-default" id="cmbestado" wire:model.live="filters.estado">
                                             <option value="">-- Estado --</option>
                                             <option value="S">Solicitado</option>
                                             <option value="A">Aprobado</option>
@@ -166,16 +166,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-xxl-2 col-sm-4">
-                                    <label for="cmbtiporol" class="form-label">Periodo</label>
-                                    <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbnivel" wire:model.live="filters.periodo">
-                                        <option value="" selected>-- Periodo --</option>
-                                        @foreach ($tblperiodos as $periodo)
-                                        <option value="{{$periodo->periodo}}">{{$periodo->periodo}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -213,7 +204,7 @@
                                 id="tab-vacaciones" role="tabpanel">
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <div style="overflow-x:auto;">
+                                        
                                             <table class="table table-sm table-nowrap align-middle" style="width:100%">
                                                 <thead class="table-light">
                                                     <tr>
@@ -225,7 +216,7 @@
                                                         <th scope="col">Fecha Solicitud</th>
                                                         <th scope="col">Fecha Inicio</th>
                                                         <th scope="col">Fecha Fin</th>
-                                                        <th class="text-end">Total Dias</th>
+                                                        <th class="text-center">Total Dias</th>
                                                         <th class="text-center">Acción</th>
                                                     </tr>
                                                 </thead>
@@ -239,14 +230,14 @@
                                                         <td>{{ date('d/m/Y', strtotime($record->fecha)) }}</td>
                                                         <td class="text-success">{{$record->fecha_empieza}}</td>
                                                         <td class="text-info">{{$record->fecha_termina}}</td>
-                                                        <td class="text-end">{{$record->dias}}</td>
+                                                        <td class="text-center">{{$record->dias}}</td>
                                                         <td>
                                                             <div class="dropdown">
                                                                 <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                                     <i class="ri-more-fill align-middle"></i>
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end" style="">
-                                                                    <li><button class="dropdown-item" href="javascript:void(0);" data-id="btnap-{{$fil}}"><i class="ri-eye-fill align-bottom me-2 text-muted"></i>
+                                                                    <li><button class="dropdown-item" href="javascript:void(0);" data-id="btnap-{{$fil}}" wire:click="aprobar({{$record->id}})"><i class="ri-eye-fill align-bottom me-2 text-muted"></i>
                                                                             Aprobar</button></li>
                                                                     <li><button class="dropdown-item" href="javascript:void(0);" data-id="btnde--{{$fil}}"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                             Denegar</button></li>
@@ -267,7 +258,7 @@
                                                 </tbody>
                                             </table>
                                             {{$tblrecords->links('')}}
-                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -328,7 +319,7 @@
                                                         <td>
                                                             <div class="d-flex gap-2 align-items-center">
                                                                 <div class="flex-shrink-0">
-                                                                    <img src="{{ URL::asset('assets/images/users/avatar-3.jpg')}}"
+                                                                    <img src="@if ($data->foto != '') {{ URL::asset('storage/fotos/'.$data->foto) }}@else{{ URL::asset('assets/images/users/avatar-7.jpg') }} @endif"
                                                                         alt="" class="avatar-xs rounded-circle">
                                                                 </div>
                                                                 <div class="flex-grow-1">
@@ -347,7 +338,7 @@
                                                                 <li class="list-inline-item edit"
                                                                     data-bs-toggle="tooltip" data-bs-trigger="hover"
                                                                     data-bs-placement="top" title="Ver detalle">
-                                                                    <a href="/rrhh/vacaciones/{{$data['id']}}">
+                                                                    <a href="/rrhh/vacaciones-historial/{{$data['id']}}" target="_blank">
                                                                         <i class="las la-eye fs-22 text-info"></i>
                                                                     </a>
                                                                 </li>
@@ -424,6 +415,9 @@
 
                                 </div>
                             </div>
+                            @error('fecha_fin')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
                             <div class="col-lg-12">
                                 <div>
                                     <label for="assignedtoName-field" class="form-label">Comentario</label>
@@ -440,6 +434,36 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div wire.ignore.self class="modal fade flip" id="frmAprobar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-5 text-center">
+                    <lord-icon 
+                        src="https://cdn.lordicon.com/lupuorrc.json"
+                        trigger="loop"
+                        colors="primary:#024750,secondary:#f06548"
+                        style="width:150px;height:150px">
+                    </lord-icon>
+                    
+                    <div class="mt-4 text-center">
+                        <h4>¿Desea aprobar las vacaciones de {{ $selectValue }}?</h4>
+                        <p class="text-muted fs-15 mb-4">
+                        Al aprobar, se descontarán los días correspondientes del período disponible.
+                        </p>
+                        <div class="hstack gap-2 justify-content-center remove">
+                            <button class="btn btn-link link-success fw-medium text-decoration-none"
+                                data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i>
+                                Cerrar </button>
+                            <button class="btn btn-danger" id="delete-record"  wire:click="aprobarVacaciones()"> Si,
+                                Aprobar</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

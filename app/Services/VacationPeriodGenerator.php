@@ -20,12 +20,12 @@ class VacationPeriodGenerator
         }
 
         $fechaIngreso = Carbon::parse($contratoBase->fecha_ingreso);
-        $anioIngreso  = $fechaIngreso->year;
-        $anioActual   = now()->year;
+        $anioInicioVacaciones = $fechaIngreso->copy()->addYear()->year;
+        $anioActual = now()->year;
 
-        DB::transaction(function () use ($personaId, $anioIngreso, $anioActual) {
+        DB::transaction(function () use ($personaId, $anioInicioVacaciones, $anioActual, $fechaIngreso) {
 
-            for ($anio = $anioIngreso; $anio <= $anioActual; $anio++) {
+            for ($anio = $anioInicioVacaciones; $anio <= $anioActual; $anio++) {
 
                 $existe = TdPeriodoVacaciones::where('persona_id', $personaId)
                     ->where('periodo', $anio)
@@ -35,11 +35,12 @@ class VacationPeriodGenerator
                     continue;
                 }
 
-                $aniosCumplidos = ($anio - $anioIngreso) + 1;
+                $aniosCumplidos = $fechaIngreso->diffInYears(Carbon::create($anio));
 
                 $dias = 15;
-                if ($aniosCumplidos >= 6) {
-                    $dias += ($aniosCumplidos - 5);
+
+                if ($aniosCumplidos >= 5) {
+                    $dias += ($aniosCumplidos - 4);
                 }
 
                 TdPeriodoVacaciones::create([

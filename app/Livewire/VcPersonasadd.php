@@ -5,12 +5,16 @@ use App\Models\TmPersonas;
 use App\Models\TmCatalogogeneral;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class VcPersonasadd extends Component
 {   
+    use WithFileUploads;
 
     public $record;
-    public $personaId, $fechanace, $addPersona = false;
+    public $personaId, $fechanace, $addPersona = false, $fileimg, $foto;
 
     public function mount($id){
         
@@ -41,11 +45,18 @@ class VcPersonasadd extends Component
 
             $this->record     = TmPersonas::find($this->personaId)->toArray();
             $this->fechanace  = date('Y-m-d',strtotime($this->record['fecha_nace'])); 
+            $this->record['tipo_sangre'] = ($this->record['tipo_sangre']=='') ? 'O+' : $this->record['tipo_sangre'];
+
+            $this->foto = $this->record['foto'];
+            $contents   = Storage::disk('public')->exists('fotos/'.$this->foto);
+                        
+            if($contents==false){
+                $this->foto='';
+            }
 
         }else{
             
             $this->addPersona = true;
-
             $this->record   = TmPersonas::find($this->personaId);
             $this->add();
         }
@@ -71,6 +82,7 @@ class VcPersonasadd extends Component
         $this->record['tipo_cuenta']= 'AHO';
         $this->record['cuenta_banco']= '';
         $this->record['estado']= 'A';
+        $this->record['foto']= '';
         
         $this->fechanace = '';
 
@@ -105,6 +117,17 @@ class VcPersonasadd extends Component
             'record.tipo_sangre' => 'required'
         ]);
 
+        if($this->fileimg ?? null){
+            $this ->validate([
+                'fileimg' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
+                ]);
+
+            $nameFile = $this->record['nui'].'.'.$this->fileimg->getClientOriginalExtension();
+            $pathfile = 'storage/'.$this->fileimg->storeAs('public/fotos', $nameFile);
+
+            $this->record['foto'] = $nameFile;
+        }
+
         TmPersonas::Create([
             'nombres' => $this -> record['nombres'],
             'apellidos' => $this -> record['apellidos'],
@@ -123,6 +146,7 @@ class VcPersonasadd extends Component
             'cuenta_banco' => $this -> record['cuenta_banco'],
             'usuario' => auth()->user()->name,
             'estado' => $this -> record['estado'],
+            'foto' => $this -> record['foto'],
         ]);
 
         $this->dispatch('msg-grabar'); 
@@ -145,6 +169,14 @@ class VcPersonasadd extends Component
             'record.tipo_sangre' => 'required',
         ]);
 
+        if($this->fileimg ?? null){
+            $this ->validate([
+                'fileimg' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
+                ]);
+
+            $nameFile = $this->record['nui'].'.'.$this->fileimg->getClientOriginalExtension();
+            $pathfile = 'storage/'.$this->fileimg->storeAs('public/fotos', $nameFile);
+        }
         
         $persona = TmPersonas::find($this->personaId);
         $persona->update([
@@ -164,6 +196,7 @@ class VcPersonasadd extends Component
             'tipo_cuenta' => $this -> record['tipo_cuenta'],
             'cuenta_banco' => $this -> record['cuenta_banco'],
             'estado' => $this -> record['estado'],
+            'foto' => $nameFile,
         ]);
 
 

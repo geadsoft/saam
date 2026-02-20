@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\TdPeriodoVacaciones;
 use App\Models\TdSolicitudVacaciones;
+use App\Models\TdMovimientosVacaciones;
 
 class VacationService
 {
@@ -19,7 +20,7 @@ class VacationService
     {
         $remaining = $request->dias;
 
-        $periods = TdPeriodoVacaciones::where('employee_id', $request->employee_id)
+        $periods = TdPeriodoVacaciones::where('persona_id', $request->persona_id)
             ->orderBy('periodo')
             ->lockForUpdate()
             ->get();
@@ -37,9 +38,10 @@ class VacationService
             $period->save();
 
             TdMovimientosVacaciones::create([
-                'vacation_request_id' => $request->id,
-                'vacation_period_id' => $period->id,
-                'dias' => $use
+                'solicitud_vacacion_id' => $request->id,
+                'periodo_vacacion_id' => $period->id,
+                'dias_descontados' => $use,
+                'fecha' => now()
             ]);
 
             $remaining -= $use;
