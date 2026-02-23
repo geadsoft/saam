@@ -42,7 +42,7 @@
                         </div>
                         <div class="card-body p-4">
                             <div class="text-center ">
-                                <h5 class="text-primary">Bienvenido de nuevo!</h5>
+                                <h5 style="color: #024750;">Bienvenido de nuevo!</h5>
                                 <p class="text-muted">Inicie sesión para continuar.</p>
                             </div>
                             <div class="p-2 mt-4">
@@ -79,7 +79,7 @@
                                     </div>
 
                                     <div class="mt-4">
-                                        <button class="btn btn-primary w-100" type="submit">Iniciar Sesión</button>
+                                        <button style= "background-color: #024750;"  class="btn w-100" type="submit"><span style="color:white">Iniciar Sesión</span></button>
                                     </div>
 
                                     <!--<div class="mt-4 text-center">

@@ -83,6 +83,7 @@ class VcPersonasadd extends Component
         $this->record['cuenta_banco']= '';
         $this->record['estado']= 'A';
         $this->record['foto']= '';
+        $this->record['tipo']= '';
         
         $this->fechanace = '';
 
@@ -114,7 +115,8 @@ class VcPersonasadd extends Component
             'record.instruccion' => 'required',
             'record.sexo' => 'required',
             'record.estado_civil' => 'required',
-            'record.tipo_sangre' => 'required'
+            'record.tipo_sangre' => 'required',
+            'record.tipo' => 'required'
         ]);
 
         if($this->fileimg ?? null){
@@ -147,6 +149,7 @@ class VcPersonasadd extends Component
             'usuario' => auth()->user()->name,
             'estado' => $this -> record['estado'],
             'foto' => $this -> record['foto'],
+            'tipo' => $this -> record['tipo'],
         ]);
 
         $this->dispatch('msg-grabar'); 
@@ -167,6 +170,7 @@ class VcPersonasadd extends Component
             'record.sexo' => 'required',
             'record.estado_civil' => 'required',
             'record.tipo_sangre' => 'required',
+            'record.tipo' => 'required',
         ]);
 
         if($this->fileimg ?? null){
@@ -176,6 +180,7 @@ class VcPersonasadd extends Component
 
             $nameFile = $this->record['nui'].'.'.$this->fileimg->getClientOriginalExtension();
             $pathfile = 'storage/'.$this->fileimg->storeAs('public/fotos', $nameFile);
+            $this->record['foto'] = $nameFile;
         }
         
         $persona = TmPersonas::find($this->personaId);
@@ -196,7 +201,8 @@ class VcPersonasadd extends Component
             'tipo_cuenta' => $this -> record['tipo_cuenta'],
             'cuenta_banco' => $this -> record['cuenta_banco'],
             'estado' => $this -> record['estado'],
-            'foto' => $nameFile,
+            'foto' => $this->record['foto'],
+            'tipo' => $this -> record['tipo'],
         ]);
 
 

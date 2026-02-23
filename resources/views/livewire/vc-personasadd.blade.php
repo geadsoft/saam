@@ -162,7 +162,19 @@
                                                 placeholder="Ingrese cargas familiares" wire:model.defer="record.carga_familiar">
                                         </div>
                                     </div>
-                                    
+                                    <div class="col-lg-2">
+                                        <div class="mb-3">
+                                            <label for="cmbtipo" class="form-label">Tipo</label>
+                                            <select class="form-select data-choices data-choices-search-false" id="cmbetnia" wire:model.defer="record.tipo" required>
+                                                <option value="">-- Seleccione --</option>
+                                                <option value="PR">Proveedor</option>
+                                                <option value="CL">Cliente</option>
+                                                <option value="EM">Empleado</option>
+                                                <option value="EG">Gerente</option>
+                                                <option value="EP">Presidente</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div class="col-lg-6">
                                         <div class="mb-3">
                                             <label for="txtemail" class="form-label">Dirección</label>

@@ -95,24 +95,32 @@ class VcPlanillaRubros extends Component
             foreach($this->rubros as $rubro){
                 $rubroId = $rubro->id;
 
-                $this->tblrecords[$personaId][$rubroId] = 0;
+                $this->tblrecords[$personaId][$rubroId] = null;
 
                 if(isset($hextras[$personaId]) && $rubroId==$this->empresa->extra25){
-                    $this->tblrecords[$personaId][$rubroId] = $hextras[$personaId]->monto25 ?? 0;
+                    $this->tblrecords[$personaId][$rubroId] = $hextras[$personaId]->monto25 ?? null;
                 }
 
                 if(isset($hextras[$personaId]) && $rubroId==$this->empresa->extra50){
-                    $this->tblrecords[$personaId][$rubroId] = $hextras[$personaId]->monto50 ?? 0;
+                    $this->tblrecords[$personaId][$rubroId] = $hextras[$personaId]->monto50 ?? null;
                 }
 
                 if(isset($hextras[$personaId]) && $rubroId==$this->empresa->extra100){
-                    $this->tblrecords[$personaId][$rubroId] = $hextras[$personaId]->monto100 ?? 0;
+                    $this->tblrecords[$personaId][$rubroId] = $hextras[$personaId]->monto100 ?? null;
                 }
                               
             }
 
         }
-        
+
+        $this->tblrecords['ZZ']['persona_id'] = 0;
+        $this->tblrecords['ZZ']['nui'] = '';
+        $this->tblrecords['ZZ']['nombre'] = 'TOTAL';
+        foreach($this->rubros as $rubro){
+            $rubroId = $rubro->id;
+            $this->tblrecords['ZZ'][$rubroId] = 0;
+        }
+
         $this->loadPlanilla();
     }
 
@@ -140,6 +148,14 @@ class VcPlanillaRubros extends Component
             ['periodosrol_id',$this->periodoId],
         ])->get();
 
+        $total = TdPlanillaRubros::where([
+        ['tiposrol_id', $this->tiporolId],
+        ['periodosrol_id', $this->periodoId],
+        ])
+        ->select('rubrosrol_id', DB::raw('SUM(valor) as valor'))
+        ->groupBy('rubrosrol_id')
+        ->get();
+
         foreach ($planilla as $index => $data){
 
             $personaId = $data->persona_id;
@@ -148,6 +164,27 @@ class VcPlanillaRubros extends Component
             $this->tblrecords[$personaId][$rubroId] = $data->valor;
         }
 
+        foreach ($total as $index => $data){
+            $rubroId = $data->rubrosrol_id;
+
+            $this->tblrecords['ZZ'][$rubroId] = $data->valor;
+        }
+
+
+    }
+    
+    public function getTotalRubro($rubroId)
+    {
+        $total = 0;
+
+        foreach ($this->tblrecords as $pid => $rubros) {
+
+            if ($pid === 'ZZ') continue;
+
+            $total += (float) ($rubros[$rubroId] ?? 0);
+        }
+
+        return number_format($total, 2, '.', '');
     }
 
     public function createData(){
@@ -182,8 +219,13 @@ class VcPlanillaRubros extends Component
 
         foreach ($this->tblrecords as $index => $data)
         {   
+            if ($index=='ZZ') {
+                continue;
+            }
 
             foreach ($this->rubros as $rubro){
+
+                    $valor = $this->tblrecords[$index][$rubro->id];
 
                     $dataRow['fecha'] = $this->fecha;
                     $dataRow['tipo'] = 'P';
@@ -191,7 +233,7 @@ class VcPlanillaRubros extends Component
                     $dataRow['periodosrol_id'] = $this->periodoId;
                     $dataRow['persona_id'] = $index;
                     $dataRow['rubrosrol_id'] = $rubro->id;
-                    $dataRow['valor'] = $this->tblrecords[$index][$rubro->id];
+                    $dataRow['valor'] = ($valor == null) ? 0 : $valor;
                     $dataRow['usuario'] = auth()->user()->name;
                     $dataRow['estado']  = 'G';
 

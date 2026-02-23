@@ -28,6 +28,7 @@ class TmPersonas extends Model
         'cuenta_banco',
         'estado',
         'foto',
+        'tipo',
     ];
 }
 

@@ -225,7 +225,7 @@
                                                     <tr id="{{$fil}}" class="detalle">
                                                         <td>{{$record->apellidos}} {{$record->nombres}}</td>
                                                         <td>{{$record->cargo}}</td>
-                                                        <td>{{$record->estado}}</td>
+                                                        <td>{{$estado[$record->estado]['estado']}}</td>
                                                         <td>{{$record->usuario}}</td>
                                                         <td>{{ date('d/m/Y', strtotime($record->fecha)) }}</td>
                                                         <td class="text-success">{{$record->fecha_empieza}}</td>

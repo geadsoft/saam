@@ -78,6 +78,12 @@ class Vcrubrosadd extends Component
         ->where('rubrorol_id',$this->selectId)
         ->get()->toArray();
 
+        $this->record['imprimerol1'] = ($this->record['imprimerol1']==1) ? true : false;
+        $this->record['imprimerol2'] = ($this->record['imprimerol2']==1) ? true : false;
+        $this->record['imprimerol3'] = ($this->record['imprimerol3']==1) ? true : false;
+
+       
+
         if (empty($tblbases)) {
             $this->newRecno();
         }else{

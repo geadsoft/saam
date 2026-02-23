@@ -25,7 +25,7 @@ class VcRolPago extends Component
     
     public $tblCia, $fecha, $periodoId=0, $tiporolid, $titulo, $count=1;
     public $ingreso, $otringr, $egresos, $otegres, $tblperiodos, $grabar;
-    public $detalle = [], $aportes=[], $totalRol = [], $personal, $fecharol;
+    public $detalle = [], $aportes=[], $totalRol = [], $personal, $fecharol, $rubrosprovision, $tipoPersona;
     public $modalKey = 0;
     public $datosHijo = [];
 
@@ -81,7 +81,12 @@ class VcRolPago extends Component
         $this->totalRol['totEgr'] = 0;
         $this->totalRol['total'] = 0;
 
-       
+        $this->rubrosprovision = TmRubrosrol::query()
+        ->where('imprimerol1',0)
+        ->where('imprimerol3',0)
+        ->whereRaw("registro <> 'NO'")
+        ->get();
+      
     }
 
     public function render()
@@ -146,6 +151,7 @@ class VcRolPago extends Component
             $this->otringr = 0.00;
             $this->egresos = 0.00;
             $this->otegres = 0.00;
+            $this->tipopersona = $persons->tipo;
 
             $planilla = TdPlanillaRubros::query()
             ->join('tm_rubrosrols as r','r.id','=','td_planillarubros.rubrosrol_id')
@@ -521,6 +527,11 @@ class VcRolPago extends Component
         }
 
         if(is_null($valor)){
+            return;
+        }
+        
+        //No graba provision del presidente
+        if ($this->tipopersona=='EP' && $this->rubrosprovision->contains('id', $rubroId)){
             return;
         }
 

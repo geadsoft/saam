@@ -91,7 +91,10 @@
                                 <tbody class="list form-check-all">
                                     
                                     @foreach ($tblrecords as $fil => $data)
-                                        <tr id="{{$fil}}" class="detalle">
+                                        <tr wire:key="row-{{ $fil }}" id="{{$fil}}" class="detalle">
+                                            @if ($fil=='ZZ')
+                                                <td class = "text-end" colspan="3"><strong>{{$data['nombre']}}</strong></td>
+                                            @else
                                             <th scope="row">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="chk_child"
@@ -104,16 +107,29 @@
                                             <td class= "sticky">
                                                 <input type="text" style="width:250px" class="form-control form-control-sm product-price" id="col-{{$fil}}-nombre" value="{{$data['nombre']}}" disabled/>
                                             </td>
+                                            @endif
                                             @foreach ($rubros as $rubro)
+                                            @if ($fil=='ZZ')
                                             <td>
-                                                <input type="number" step="0.01"  style="width:80px" class="form-control form-control-sm product-price"
-                                                id="col-{{$rubro->id}}" wire:model="tblrecords.{{$fil}}.{{$rubro->id}}" />
+                                                <input type="text"
+                                                class="form-control form-control-sm fw-semibold text-end"
+                                                value="{{ $this->getTotalRubro($rubro->id) }}"
+                                                disabled>
                                             </td>
+                                            @else
+                                            <td wire:key="cell-{{ $fil }}-{{ $rubro->id }}">
+                                                <input type="text"
+                                                inputmode="decimal"
+                                                class="form-control form-control-sm text-end"
+                                                wire:model.live="tblrecords.{{ $fil }}.{{ $rubro->id }}"
+                                                placeholder="0.00" 
+                                                style="width:80px"/>
+                                            </td>
+                                            @endif
                                             @endforeach
                                         </tr>
                                     @endforeach
-
-
+                                    
                                 </tbody>
                             </table>
                             </div>
