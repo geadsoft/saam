@@ -118,7 +118,6 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        {{$tblrecords->links('')}}
                                     </div>
                                 </div>
                             </div>
@@ -143,7 +142,7 @@
                                                 <tbody>
                                                     <tr>
                                                         <td>{{ $periodo->periodo }}</td>
-                                                        <td>Aginación</td>
+                                                        <td>Asignación</td>
                                                         <td>-</td>
                                                         <td>{{$periodo->dias_generados}}</td>
                                                         <td>{{$periodo->dias_generados-$periodo->dias_usados}}</td>
@@ -187,7 +186,9 @@
                                             <tbody class="list form-check-all">
                                                 @foreach($tblrecords as $fil => $record)
                                                 <tr id="{{$fil}}" class="detalle">
-                                                    <td>{{$record->estado}}</td>
+                                                    <td>
+                                                        <span class="badge {{$estado[$record->estado]['color']}} text-uppercase">{{$estado[$record->estado]['estado']}}</span>
+                                                    </td>
                                                     <td>{{$record->usuario}}</td>
                                                     <td>{{ date('d/m/Y', strtotime($record->fecha)) }}</td>
                                                     <td class="text-success">{{$record->fecha_empieza}}</td>

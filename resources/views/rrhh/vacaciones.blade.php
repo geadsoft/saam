@@ -26,10 +26,21 @@
     
     <script src="{{ URL::asset('assets/libs/fullcalendar/fullcalendar.min.js') }}"></script>
     <script src="{{ URL::asset('/assets/js/app.min.js') }}"></script>
+    <script src="{{ URL::asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="{{ URL::asset('assets/js/pages/calendar.js') }}"></script>
 
     <script>
+
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('msg-anulado', () => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Solicitud anulada',
+                    text: 'Los días fueron restaurados correctamente.'
+                });
+            });
+        });
        
         window.addEventListener('show-form', event => {
             $('#showModal').modal('show');
@@ -52,11 +63,7 @@
         })
 
         window.addEventListener('msg-actualizar', event => {
-            swal("Actualizado!", "Registro ha sido actualizado exitosamente!", "success");
-        })
-
-        window.addEventListener('msg-actualizar', event => {
-            swal("Actualizado!", "Registro ha sido actualizado exitosamente!", "success");
+            swal("Actualizado!", "Registro ha sido actualizado exitosamente!", "info");
         })
 
         function viewEvent(idEvent) {

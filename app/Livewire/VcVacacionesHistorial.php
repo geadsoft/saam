@@ -10,8 +10,12 @@ use App\Models\TdPeriodoVacaciones;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
+use Livewire\WithPagination;
+
 class VcVacacionesHistorial extends Component
 {
+    use WithPagination;
+
     public $personaId, $dias;
 
     public $filters=[
@@ -45,6 +49,7 @@ class VcVacacionesHistorial extends Component
         ->join('tm_cargocias as cc','c.cargo_id','=','cc.id')
         ->select('p.nombres','p.apellidos','cc.descripcion as cargo','td_solicitud_vacaciones.*')
         ->where('p.id',$this->personaId)
+        ->orderBy('td_solicitud_vacaciones.id','desc')
         ->paginate(12);
 
         $vacaciones = $this->diasVacaciones();
@@ -56,6 +61,10 @@ class VcVacacionesHistorial extends Component
             'vacaciones' => $vacaciones,
             'periodos' => $periodos,
         ]);
+    }
+
+    public function paginationView(){
+        return 'vendor.livewire.bootstrap'; 
     }
 
     public function diasVacaciones()
@@ -118,6 +127,7 @@ class VcVacacionesHistorial extends Component
         ])
         ->where('persona_id', $this->personaId)
         ->orderBy('periodo')
+        ->orderBy('periodo','desc')
         ->get();
 
         return $periodos;

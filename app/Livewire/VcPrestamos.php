@@ -78,7 +78,8 @@ class VcPrestamos extends Component
         "), 'u.prestamo_id', '=', 'c.id')
         ->whereYear('c.fecha', $this->periodo)
         ->select('c.*', 'u.ultfecha', 'p.pagos', 'e.apellidos', 'e.nombres')
-        ->paginate(12);
+        ->orderBy('c.id','desc')
+        ->paginate(10);
 
         $prestamo = DB::table('tr_prestamos_cabs as c')
         ->leftJoin(DB::raw("

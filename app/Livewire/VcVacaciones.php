@@ -7,6 +7,8 @@ use App\Models\TmArea;
 use App\Models\TmContratos;
 use App\Models\TdSolicitudVacaciones;
 use App\Models\TmCalendarioEventos;
+use App\Models\TdMovimientosVacaciones;
+use App\Models\TdPeriodoVacaciones;
 use App\Services\VacationService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -23,9 +25,10 @@ class VcVacaciones extends Component
     public $arrevent, $record=[];
 
     public $estado=[
-        'S' => ['estado' => 'Solicitado','color' => 'badge-soft-warning'],
+        'S' => ['estado' => 'Solicitado','color' => 'badge-soft-primary'],
         'A' => ['estado' => 'Aprobado','color' => 'badge-soft-success'],
-        'D' => ['estado' => 'Denegada','color' => 'badge-soft-danger'],
+        'D' => ['estado' => 'Denegada','color' => 'badge-soft-info'],
+        'X' => ['estado' => 'Anulada','color' => 'badge-soft-danger'],
     ];
 
     public $filters=[
@@ -81,7 +84,8 @@ class VcVacaciones extends Component
                         ->orWhere('p.apellidos','like','%'.$this->filters['buscar'].'%');
         })
         ->select('p.nombres','p.apellidos','cc.descripcion as cargo','td_solicitud_vacaciones.*')
-        ->paginate(12);
+        ->orderBy('td_solicitud_vacaciones.id','desc')
+        ->paginate(10);
 
         return view('livewire.vc-vacaciones',[
             'departs' => $departs,
@@ -125,7 +129,7 @@ class VcVacaciones extends Component
             'p.id'
         )
         ->when(filled($this->filters['departamento']), fn($q) =>
-            $q->where('d.departamento_id', $this->filters['departamento']))
+            $q->where('tm_contratos.departamento_id', $this->filters['departamento']))
         ->when($this->filters['buscar'],function($query){
             return $query->where('p.nombres','like','%'.$this->filters['buscar'].'%')
                         ->orWhere('p.apellidos','like','%'.$this->filters['buscar'].'%');
@@ -172,6 +176,20 @@ class VcVacaciones extends Component
         
     }
 
+    public function edit($recno){
+        
+        $this->showEditModal = true;
+        $this->record['personaId']= $recno['persona_id'];
+        $this->record['fechadesde']= date('Y-m-d',strtotime($recno['fecha_empieza']));
+        $this->record['fechahasta']= date('Y-m-d',strtotime($recno['fecha_termina']));
+        $this->record['comentario']= $recno['observacion'];
+        $this->record['estado']= 'S';
+       
+        $this->selectId = $recno['id'];
+        $this->dispatch('show-form');
+
+    }
+
     public function createData(){
         
         $this ->validate([
@@ -187,9 +205,9 @@ class VcVacaciones extends Component
         $fin    = Carbon::createFromFormat('d-m-Y', $endDate);
 
         // Validación básica
-        if ($fin->lessThanOrEqualTo($inicio)) {
+        if ($fin->lessThan($inicio)) {
 
-            $this->addError('fecha_fin', 'La fecha/hora final debe ser mayor a la inicial.');
+            $this->addError('fecha_fin', 'La fecha/hora final no puede ser menor a la inicial.');
             return;
         }
 
@@ -226,6 +244,46 @@ class VcVacaciones extends Component
 
         $this->dispatch('hide-form'); 
         $this->dispatch('msg-grabar');
+    }
+
+    public function updateData(){ 
+
+        $this ->validate([
+            'record.fecha' => 'required',
+            'record.personaId' => 'required',
+            'record.fechadesde' => 'required',
+            'record.fechahasta' => 'required',
+        ]);
+
+        $startDate = date('d-m-Y',strtotime($this->record['fechadesde']));
+        $endDate = date('d-m-Y',strtotime($this->record['fechahasta']));
+        $inicio = Carbon::createFromFormat('d-m-Y', $startDate);
+        $fin    = Carbon::createFromFormat('d-m-Y', $endDate);
+
+        // Validación básica
+        if ($fin->lessThanOrEqualTo($inicio)) {
+
+            $this->addError('fecha_fin', 'La fecha/hora final debe ser mayor a la inicial.');
+            return;
+        }
+
+        // Total días (laborales o calendario)
+        $totalDias = $this->calculaTiempo($inicio,$fin);
+        $tiempo = $totalDias;
+        $tipoPermiso = 'dias';
+
+        if ($this->selectId){
+            $record = TdSolicitudVacaciones::find($this->selectId);
+            $record->update([
+                'fecha_empieza' => $this->record['fechadesde'],
+                'fecha_termina' => $this->record['fechahasta'],
+                'observacion' => $this -> record['comentario'],
+                'dias' => $tiempo,
+            ]);            
+        }
+
+        $this->dispatch('hide-form'); 
+        $this->dispatch('msg-actualizar');
     }
 
     //Aprobar Solicitud
@@ -267,27 +325,38 @@ class VcVacaciones extends Component
     //Elimina Solicitudes Aprobadas
     public function deleteAprobada($requestId)
     {
-        DB::transaction(function () use ($requestId) {
+        $this->dispatch('confirmar-anulacion', id: $requestId);
+    }
 
-            $request = VacationRequest::lockForUpdate()->findOrFail($requestId);
+    public function anularSolicitud($id){
 
-            if ($request->estado !== 'APROBADA') return;
+        DB::transaction(function () use ($id) {
 
-            $movements = VacationMovement::where('vacation_request_id', $request->id)->get();
+            $request = TdSolicitudVacaciones::lockForUpdate()->findOrFail($id);
+
+            if ($request->estado != 'A'){
+
+                $request->estado = 'X';
+                $request->save();
+
+                return;
+            } 
+
+            $movements = TdMovimientosVacaciones::where('solicitud_vacacion_id', $request->id)->get();
 
             foreach ($movements as $movement) {
-                $period = VacationPeriod::find($movement->vacation_period_id);
-                $period->dias_usados -= $movement->dias;
+                $period = TdPeriodoVacaciones::find($movement->periodo_vacacion_id);
+                $period->dias_usados -= $movement->dias_descontados;
                 $period->save();
             }
 
-            VacationMovement::where('vacation_request_id', $request->id)->delete();
+            TdMovimientosVacaciones::where('solicitud_vacacion_id', $request->id)->delete();
 
-            $request->estado = 'ANULADA';
+            $request->estado = 'X';
             $request->save();
         });
 
-        $this->emit('vacationUpdated');
+        $this->dispatch('msg-anulado');
     }
 
     public function calculaTiempo($inicio,$fin){
