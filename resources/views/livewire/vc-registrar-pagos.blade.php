@@ -302,6 +302,21 @@
                         </div>
                     </div>
                 </div>
+                <div class="d-flex align-items-start gap-3 mt-4">
+                    <a href="/payroll/nominas" 
+                    class="btn btn-light btn-label">
+                        <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
+                        Volver a Nómina
+                    </a>
+                    <div class="col-md-auto ms-auto">
+                        <div class="hstack text-nowrap gap-2">
+                            @if ($this->nomina['estado'] == 'C' )
+                                <button type="submit" class="btn btn-info w-sm" ><i class="ri-save-3-fill align-bottom me-1"></i>Procesar</button>
+                                <button type="button" wire:click.prevent="deleteRol()" class="btn btn-warning w-sm"><i class="ri-delete-back-2-line align-bottom me-1"></i>Reversar</button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
             <!--end card--> 
         </div>
@@ -311,14 +326,6 @@
             </div>
             <div class="col-md-2">
             </div>                        
-            <div class="col-md-auto ms-auto">
-                <div class="hstack text-nowrap gap-2">
-                    @if ($this->nomina['estado'] == 'C' )
-                        <button type="submit" class="btn btn-info w-sm" ><i class="ri-save-3-fill align-bottom me-1"></i>Procesar</button>
-                        <button type="button" wire:click.prevent="deleteRol()" class="btn btn-warning w-sm"><i class="ri-delete-back-2-line align-bottom me-1"></i>Reversar</button>
-                    @endif
-                </div>
-            </div>
         </div>
         
         <!--end col-->

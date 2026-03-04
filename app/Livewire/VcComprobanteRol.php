@@ -74,9 +74,10 @@ class VcComprobanteRol extends Component
         ->where('comprobante_id',$this->comprobanteId)
         ->get();
 
-        $this->totalDebe  = $this->detalle->where('naturaleza','D')->sum('valor');
-        $this->totalHaber = $this->detalle->where('naturaleza','C')->sum('valor');
-        $this->diferencia = $this->totalDebe-$this->totalHaber;
+        $this->totalDebe  = round((float) $this->detalle->where('naturaleza','D')->sum('valor'), 2);
+        $this->totalHaber = round((float) $this->detalle->where('naturaleza','C')->sum('valor'), 2);
+
+        $this->diferencia = round($this->totalDebe - $this->totalHaber, 2);
 
     }
 

@@ -128,7 +128,6 @@
                         @endif
                     @endforeach
                 </tr>
-
                 @endforeach
             </tbody>
             <tfoot>

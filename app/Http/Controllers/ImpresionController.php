@@ -181,4 +181,39 @@ class ImpresionController extends Controller
         return $pdf->stream("certificado-{$record->Documento}.pdf");
 
     }
+
+    public function diarioNomina_Pdf($id)
+    {
+        $mes=[
+            1 => 'ENERO',
+            2 => 'FEBRERO',
+            3 => 'MARZO',
+            4 => 'ABRIL',
+            5 => 'MAYO',
+            6 => 'JUUNO',
+            7 => 'JULIO',
+            8 => 'AGOSTO',
+            9 => 'SEPTIEMBRE',
+            10 => 'OCTUBRE',
+            11 => 'NOVIEMBRE',
+            12 => 'DICIEMBRE',
+        ];
+        
+        $diario= TcComprobanteRol::query()
+        ->join('tc_rol_pagos as r','r.id','=','tc_comprobante_rols.rolpago_id')
+        ->join('tm_tiposrols as t','r.id','=','r.tiposrol_id')
+        ->where('tc_comprobante_rols.id',$this->comprobanteId)
+        ->select('tc_comprobante_rols.*','t.descripcion as tiporol','r.remuneracion')
+        ->get();
+
+        $detalle = TdComprobanteRol::query()
+        ->join('view_cuentas_contables as c','c.cuenta','=','td_comprobante_rols.cuenta')
+        ->select('td_comprobante_rols.*','c.descripcion')
+        ->where('comprobante_id',$this->comprobanteId)
+        ->get();
+
+        $pdf = PDF::loadView('reports.diario_contable', compact('diario','detalle','mes'))->setPaper('a4', 'portrait');
+        return $pdf->stream("Diario Contable-{$diario->Documento}.pdf");
+    }
+
 }

@@ -8,13 +8,7 @@
                         <h5 class="card-title flex-grow-1 mb-0 text-primary"> {{$tipodoc[$diario['comprobante']]}} - {{$diario['documento']}}  </h5>
                         <div class="flex-shrink-0">
                             @if ($nomina['estado']=='P')
-                                <button type="button" data-bs-toggle="" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle dropdown">
-                                <i class="ri-exchange-dollar-line fs-22"></i>
-                                </button>
-                                <button type="button" data-bs-toggle="" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle dropdown">
-                                <i class="bx bx-mail-send fs-22"></i>
-                                </button>
-                                <button type="button" data-bs-toggle="dropdown" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle dropdown">
+                                <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle">
                                 <i class="bx bxs-file-pdf fs-22"></i>
                                 </button>
                             @endif
@@ -195,32 +189,26 @@
                         </div>-->
                         
                     </div>
-
-                                        
-                    
+                    <div class="d-flex align-items-start gap-3 mt-4">
+                        <a href="/payroll/nominas" 
+                        class="btn btn-light btn-label">
+                            <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
+                            Volver a Nómina
+                        </a>
+                        <div class="col-md-auto ms-auto">
+                            <div class="hstack text-nowrap gap-2">
+                                @if($diario['estado']=='G')
+                                <button type="submit" class="btn btn-info w-sm" ><i class="ri-save-3-fill align-bottom me-1"></i>Procesar</button>                   
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!--end card--> 
         </div>
         <!--end col-->
-        <div class="row">
-            <div class="col-md-3">
-            </div>
-            <div class="col-md-2">
-            </div>                        
-            <div class="col-md-auto ms-auto">
-                <div class="hstack text-nowrap gap-2">
-                    @if($diario['estado']=='G')
-                    <button type="submit" class="btn btn-info w-sm" ><i class="ri-save-3-fill align-bottom me-1"></i>Procesar</button>                   
-                    @endif
-                </div>
-            </div>
-        </div>
-        
-        <!--end col-->
     </div>
-              
-    
     </form>
     <!--end row-->
 </div>

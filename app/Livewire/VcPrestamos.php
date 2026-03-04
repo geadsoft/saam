@@ -217,21 +217,32 @@ class VcPrestamos extends Component
 
     public function calculaPagos(){
 
+        if($this->editData){
+            $this->newCuotas();
+            return;
+        }
+
         $montoTotal  = $this->record['monto'];
         $totalCuotas = $this->record['cuota'] ?? 0;
         $valorCuota  = $this->record['valorcuota'] ?? 0;
+        $iniCuota = 1;
 
-        if ($this->editData){
+        /*if ($this->editData){
+            
             $cuotasPagadas = collect($this->cuotas)
             ->where('estado', 'C');
+
+            $iniCuota = collect($this->cuotas)
+            ->where('estado', 'C')
+            ->max('cuota');
 
             $totalPagado = $cuotasPagadas->sum('valor');
             $cantidadPagadas = $cuotasPagadas->count();
 
             $montoTotal  = $montoTotal-$totalPagado;
-            $totalCuotas = $totalCuotas-$cantidadPagadas;
-
-        }
+            $iniCuota=$iniCuota+1;
+                      
+        }*/
 
         // Validaciones
         if ($totalCuotas <= 0 && $valorCuota <= 0) {
@@ -253,6 +264,7 @@ class VcPrestamos extends Component
 
             // Número de cuotas → calcular valor de la cuota
             $valorCuota = round($montoTotal / $totalCuotas, 2);
+
         }
 
         $pagos = 0;
@@ -273,7 +285,7 @@ class VcPrestamos extends Component
             $fecha->addMonth();
         }
 
-        for ($numcuota = 1; $numcuota <= $totalCuotas; $numcuota++) {
+        for ($numcuota = $iniCuota; $numcuota <= $totalCuotas; $numcuota++) {
 
             $fechaCuota = $fecha->copy()->endOfMonth();
             if ($periodo->remuneracion=='Q'){
@@ -307,6 +319,103 @@ class VcPrestamos extends Component
         }
         
         //$this->record['cuota'] = $numcuota-1;
+    }
+
+    public function newCuotas(){
+
+        $montoTotal  = $this->record['monto'];
+        $totalCuotas = $this->record['cuota'] ?? 0;
+        $valorCuota  = $this->record['valorcuota'] ?? 0;
+        $iniCuota = 1;
+            
+        $cuotasPagadas = collect($this->cuotas)
+        ->where('estado', 'C');
+
+        $iniCuota = collect($this->cuotas)
+        ->where('estado', 'C')
+        ->max('cuota');
+
+        $totalPagado = $cuotasPagadas->sum('valor');
+        $cantidadPagadas = $cuotasPagadas->count();
+
+        $montoTotal  = $montoTotal-$totalPagado;
+        $iniCuota    = $iniCuota+1;
+        $fechaBase   = $this->cuotas[$iniCuota]['fecha'];
+
+        // Validaciones
+        if ($totalCuotas <= 0 && $valorCuota <= 0) {
+            $this->addError('cuota', 'Debe indicar el número de cuotas o el valor de la cuota.');
+            return;
+        }
+
+        if ($totalCuotas > 0 && $valorCuota > 0) {
+            $this->addError('cuota', 'Indique solo el número de cuotas o el valor de la cuota, no ambos.');
+            return;
+        }
+
+        if ($valorCuota > 0) {
+
+            // Cuota fija → calcular número de cuotas
+            $totalCuotas = (int) ceil($montoTotal / $valorCuota);
+
+        } else {
+
+            $valorCuota = round($montoTotal / ($totalCuotas-$cantidadPagadas), 2);
+            
+        }
+
+        $pagos = 0;
+
+        // Obtener fecha base
+        // 🔐 Validación fuerte de fecha
+        $periodo = collect($this->tblperiodos)
+            ->firstWhere('id', $this->record['periodosrol_id']);
+
+        if (!$periodo || empty($periodo['fechafin'])) {
+            return; // o throw / addError
+        }
+
+        $fecha = Carbon::parse($fechaBase)->startOfMonth();
+
+        // Mes de gracia
+        if ($this->mesgracia) {
+            $fecha->addMonth();
+        }
+
+        for ($numcuota = $iniCuota; $numcuota <= $totalCuotas; $numcuota++) {
+
+            $fechaCuota = $fecha->copy()->endOfMonth();
+            if ($periodo->remuneracion=='Q'){
+                $fechaCuota = Carbon::parse($fecha);
+            }
+        
+            // Ajuste última cuota
+            $valor = ($numcuota == $totalCuotas)
+                ? round($montoTotal - $pagos, 2)
+                : $valorCuota;
+
+            $pagos += $valor;
+
+            if (isset($this->cuotas[$numcuota])) {
+
+                if ($this->cuotas[$numcuota]['estado'] != 'C'){
+                    $this->cuotas[$numcuota]['fecha'] = $fechaCuota->format('Y-m-d');
+                    $this->cuotas[$numcuota]['valor'] = $valor;
+                }
+                
+            } else{            
+                $this->cuotas[$numcuota] = [
+                    'id'     => 0,
+                    'cuota'  => $numcuota,
+                    'fecha'  => $fechaCuota->format('Y-m-d'),
+                    'valor'  => $valor,
+                    'estado' => 'P',
+                ];
+            }
+
+            $fecha->addMonth(); // siempre desde día 1
+        }
+        
     }
 
     public function updated($property, $value)

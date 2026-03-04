@@ -114,13 +114,14 @@
                                                     <i class="las la-eye fs-22 text-info"></i>
                                                 </a>
                                             </li>
-                                            @if($prestamo->estado!='X')
+                                            @if($prestamo->estado=='P')
                                             <li class="list-inline-item edit" data-bs-toggle="tooltip"
                                                 data-bs-trigger="hover" data-bs-placement="top" title="Editar">
                                                 <a href="" wire:click.prevent="edit({{ $prestamo }})">
                                                     <i class="ri-pencil-fill fs-16"></i>
                                                 </a>
                                             </li>
+                                            @if($prestamo->pagos==0) 
                                             <li class="list-inline-item" data-bs-toggle="tooltip"
                                                 data-bs-trigger="hover" data-bs-placement="top" title="Eliminar">
                                                 <a class="text-danger d-inline-block remove-item-btn"
@@ -129,6 +130,7 @@
                                                     <i class="ri-delete-bin-5-fill fs-16"></i>
                                                 </a>
                                             </li>
+                                            @endif
                                             @endif
                                         </ul>
                                     </td>

@@ -81,7 +81,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="3" style="border-top: 0.5px solid #aaa; padding: 0;"></td>
+                <td colspan="3" style="border-top: 0.5px solid #0c0c0c; padding: 0;"></td>
             </tr>
         </table>
         <br>

@@ -5,6 +5,7 @@ use App\Models\TcRolPagos;
 use App\Models\TmPeriodosrol;
 use App\Models\TcComprobanteRol;
 use App\Models\TmCuentasContables;
+use App\Models\TmTiposrol;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -15,7 +16,7 @@ class VcNominas extends Component
     use WithPagination;
 
     public $detalle = [];
-    public $rolpagoId;
+    public $rolpagoId, $periodos, $areas;
 
     public $filters = [
         'mes' => '',
@@ -40,16 +41,31 @@ class VcNominas extends Component
         12 => 'DICIEMBRE'
     ];
 
+    public function mount()
+    {
+        $rol = TcRolPagos::orderByDesc('fecha')->first();
+        $this->filters['periodo'] =  $rol->periodo;
+        $this->filters['mes'] =  $rol->mes;
+
+        $this->periodos    = DB::Select("
+        Select year(fechafin) as periodo from tm_periodosrols
+        Where remuneracion = 'M'
+        Group by year(fechafin)");
+
+        $this->areas = TmTiposRol::query()
+        ->get();
+    }
+
     public function render()
     {
         $tblrecords  = TcRolPagos::query()
         ->leftjoin('tc_comprobante_rols as p','p.id','=','tc_rol_pagos.diarioProvision_id')
         ->leftjoin('tc_comprobante_rols as n','n.id','=','tc_rol_pagos.diarioNomina_id')
         ->when($this->filters['mes'],function($query){
-            return $query->where('mes',$this->filters['mes']);
+            return $query->where('tc_rol_pagos.mes',$this->filters['mes']);
         })
         ->when($this->filters['periodo'],function($query){
-            return $query->where('periodo',$this->filters['periodo']);
+            return $query->where('tc_rol_pagos.periodo',$this->filters['periodo']);
         })
         ->when($this->filters['tiporol'],function($query){
             return $query->where('tiposrol_id',$this->filters['tiporol']);
@@ -103,16 +119,20 @@ class VcNominas extends Component
     public function comprobante(){
         
         $sqlDiario = DB::select("call genera_diarios_rol(".$this->rolpagoId.")");
+        $rolpago   = TcRolPagos::find($this->rolpagoId);
 
-        $diario = TcComprobanteRol::query()
-        ->where('rolpago_id',$this->rolpagoId)
-        ->where('comprobante','P')
-        ->first();
+        if($rolpago['remuneracion']=='M'){
+            
+            $diario = TcComprobanteRol::query()
+            ->where('rolpago_id',$this->rolpagoId)
+            ->where('comprobante','P')
+            ->first();
+            
+            $rolpago->update([
+                'diarioProvision_id' => $diario->id,
+            ]);
 
-        $rolpago = TcRolPagos::find($this->rolpagoId);
-        $rolpago->update([
-            'diarioProvision_id' => $diario->id,
-        ]);
+        }
 
         $diario = TcComprobanteRol::query()
         ->where('rolpago_id',$this->rolpagoId)

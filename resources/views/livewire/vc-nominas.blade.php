@@ -22,7 +22,10 @@
                                     <label for="cmbtiporol" class="form-label">Periodo</label>
                                     <select class="form-select" data-choices data-choices-search-false
                                         name="choices-single-default" id="cmbnivel" wire:model.live="filters.periodo">
-                                        <option value="" selected>All</option>                                
+                                        <option value="" selected>Todos</option>
+                                        @foreach($periodos as $periodo)                                
+                                            <option value="{{$periodo->periodo}}">{{$periodo->periodo}}</option> 
+                                        @endforeach                                
                                     </select>
                                 </div>
                             </div>
@@ -31,7 +34,7 @@
                                     <label for="cmbtiporol" class="form-label">Mes</label>
                                     <select class="form-select" data-choices data-choices-search-false
                                         name="choices-single-default" id="cmbnivel" wire:model.live="filters.mes">
-                                        <option value="" selected>All</option>
+                                        <option value="" selected>Todos</option>
                                         @for($mes=1;$mes<=12;$mes++)                                
                                             <option value="{{$mes}}">{{$meses[$mes]}}</option> 
                                         @endfor                                 
@@ -43,7 +46,10 @@
                                     <label for="cmbtiporol" class="form-label">Departamento</label>
                                     <select class="form-select" data-choices data-choices-search-false
                                         name="choices-single-default" id="cmbnivel" wire:model.live="filters.tiporol">
-                                        <option value="" selected>All</option>                              
+                                        <option value="" selected>Todos</option>  
+                                        @foreach($areas as $area)                                
+                                            <option value="{{$area->id}}">{{$area->tipoempleado->descripcion}}</option> 
+                                        @endforeach                             
                                     </select>
                                 </div>
                             </div>
@@ -52,7 +58,7 @@
                                     <label for="cmbtiporol" class="form-label">Rol</label>
                                     <select class="form-select"
                                         name="choices-single-default" id="cmbnivel" wire:model.live="filters.proceso">
-                                        <option value="" selected>All</option>
+                                        <option value="" selected>Todos</option>
                                         <option value="Q">QUINCENAL</option>
                                         <option value="M">MENSUAL</option>                                   
                                     </select>
@@ -224,9 +230,6 @@
                     <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop"
                         colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px">
                     </lord-icon>
-                    <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop"
-                                        colors="primary:#405189,secondary:#0ab39c" style="width:75px;height:75px">
-                                    </lord-icon>
                     <div class="mt-4 text-center">
                         <h4>¿Seguro de generar comprobante diario</h4>
                         <p class="text-muted fs-15 mb-4">Esta opción procesara el registro cambiando a su estado CERRADO. 

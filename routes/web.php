@@ -96,6 +96,7 @@ Route::get('/download-pdf/nomina/{data}',[VcRegistrarPagos::class, 'downloadPDF'
 Route::get('/download-pdf/pagorol/{data}',[VcRegistrarPagos::class, 'downloadRolPDF']);
 Route::get('/download-pdf/pagos/{data}',[VcRegistrarPagos::class, 'downloadPagosPDF'])->name('pagos.pdf');
 Route::get('/download-pdf/rrhh-prestamos/{data}',[VcReportPrestamos::class, 'downloadPDF'])->name('prestamo.pdf');
+Route::get('/comprobante-nomina/pdf/{id}', [ImpresionController::class, 'diarioNomina_Pdf'])->name('diarioNomina.pdf');
 
 Route::post('import-data-excel',[VcImportExcel::class, 'import'])->name('import.excel');
 
