@@ -20,9 +20,15 @@ class VcPrestamos extends Component
     use WithPagination;
 
     public $rubroId, $fecha, $mesgracia = false, $fieldset, $editData = false; 
-    public $record, $tblperiodos=[], $periodo, $anios, $eControl="";
+    public $record, $tblperiodos=[], $periodo, $anios, $eControl="", $selectValue, $selectId;
     public $cuotas=[];
-    public $prestamoId;
+    public $prestamoId, $activeTab = 'tabCab';
+
+    public $estado=[
+        'P' => ['estado' => 'Pendiente','color' => 'badge-soft-success'],
+        'C' => ['estado' => 'Cancelado','color' => 'badge-soft-primary'],
+        'X' => ['estado' => 'Anulado','color' => 'badge-soft-danger'],
+    ];
 
     public function mount($id){
         
@@ -160,7 +166,7 @@ class VcPrestamos extends Component
 
         $this->prestamoId = $recno['id'];
         $this->record['persona_id'] = $recno['persona_id'];
-        $this->loadperiodo();
+        /*$this->loadperiodo();*/
 
         $this->view($recno);
         $this->fieldset="";
@@ -171,7 +177,10 @@ class VcPrestamos extends Component
 
     public function view($recno){
 
-        $this->record['fecha']= $recno['fecha'];
+        $this->tblperiodos = TmPeriodosrol::where('id',$recno['periodosrol_id'])
+        ->get();
+
+        $this->record['fecha']=  date('Y-m-d',strtotime($recno['fecha'])); 
         $this->record['persona_id']= $recno['persona_id'];
         $this->record['tipoprestamo_id']= $recno['tipoprestamo_id'];
         $this->record['rubrosrol_id']= $recno['rubrosrol_id'];
@@ -182,9 +191,13 @@ class VcPrestamos extends Component
         $this->record['ultimopago']=$recno['ultfecha'];
         $this->record['comentario']=$recno['comentario'];
 
-        $this->cuotas  = TrPrestamosDets::where('prestamo_id',$recno['id'])->get()->toArray();
+        $this->cuotas = TrPrestamosDets::where('prestamo_id',$recno['id'])
+        ->get()
+        ->keyBy('cuota')
+        ->toArray();
 
     }
+
 
     public function loadperiodo(){
 
@@ -194,7 +207,8 @@ class VcPrestamos extends Component
         ->join("tm_tiposrols as t","t.id","=","tm_periodosrols.tiporol_id")
         ->where('t.tipoempleado_id',$tmcontrato->tipoempleado_id)
         ->where('t.tipocontrato_id',$tmcontrato->tipocontrato_id)
-        ->where('tm_periodosrols.remuneracion','M')
+        /*->where('tm_periodosrols.remuneracion','M')*/
+        ->where('tm_periodosrols.procesado',0)
         ->select('tm_periodosrols.id','tm_periodosrols.fechafin')
         ->get();
               
@@ -206,6 +220,18 @@ class VcPrestamos extends Component
         $montoTotal  = $this->record['monto'];
         $totalCuotas = $this->record['cuota'] ?? 0;
         $valorCuota  = $this->record['valorcuota'] ?? 0;
+
+        if ($this->editData){
+            $cuotasPagadas = collect($this->cuotas)
+            ->where('estado', 'C');
+
+            $totalPagado = $cuotasPagadas->sum('valor');
+            $cantidadPagadas = $cuotasPagadas->count();
+
+            $montoTotal  = $montoTotal-$totalPagado;
+            $totalCuotas = $totalCuotas-$cantidadPagadas;
+
+        }
 
         // Validaciones
         if ($totalCuotas <= 0 && $valorCuota <= 0) {
@@ -250,8 +276,10 @@ class VcPrestamos extends Component
         for ($numcuota = 1; $numcuota <= $totalCuotas; $numcuota++) {
 
             $fechaCuota = $fecha->copy()->endOfMonth();
-             
-
+            if ($periodo->remuneracion=='Q'){
+                $fechaCuota = Carbon::parse($periodo['fechafin']);
+            }
+        
             // Ajuste última cuota
             $valor = ($numcuota == $totalCuotas)
                 ? round($montoTotal - $pagos, 2)
@@ -259,17 +287,63 @@ class VcPrestamos extends Component
 
             $pagos += $valor;
 
-            $this->cuotas[] = [
-                'cuota'  => $numcuota,
-                'fecha'  => $fechaCuota->format('Y-m-d'),
-                'valor'  => $valor,
-                'estado' => 'P',
-            ];
+            if (isset($this->cuotas[$numcuota])) {
+
+                if ($this->cuotas[$numcuota]['estado'] != 'C'){
+                    $this->cuotas[$numcuota]['fecha'] = $fechaCuota->format('Y-m-d');
+                    $this->cuotas[$numcuota]['valor'] = $valor;
+                }
+                
+            } else{            
+                $this->cuotas[$numcuota] = [
+                    'cuota'  => $numcuota,
+                    'fecha'  => $fechaCuota->format('Y-m-d'),
+                    'valor'  => $valor,
+                    'estado' => 'P',
+                ];
+            }
 
             $fecha->addMonth(); // siempre desde día 1
         }
         
-        $this->record['cuota'] = $numcuota-1;
+        //$this->record['cuota'] = $numcuota-1;
+    }
+
+    public function updated($property, $value)
+    {
+        if (str_starts_with($property, 'cuotas.') && str_ends_with($property, '.fecha')) {
+
+            $numCuota = explode('.', $property)[1];
+
+            $this->recalcularFechas((int)$numCuota);
+        }
+    }
+
+    public function recalcularFechas($cuotaBase)
+    {
+        if (!isset($this->cuotas[$cuotaBase])) {
+            return;
+        }
+
+        // Forzamos cuota base al último día
+        $fechaBase = Carbon::parse($this->cuotas[$cuotaBase]['fecha'])
+                        ->endOfMonth();
+
+        $this->cuotas[$cuotaBase]['fecha'] = $fechaBase->format('Y-m-d');
+
+        foreach ($this->cuotas as $nro => &$cuota) {
+
+            if ($nro > $cuotaBase && $cuota['estado'] == 'P') {
+
+                // Nos movemos al primer día del siguiente mes
+                $fechaBase = $fechaBase->copy()
+                    ->addMonthNoOverflow()
+                    ->startOfMonth()
+                    ->endOfMonth();
+
+                $cuota['fecha'] = $fechaBase->format('Y-m-d');
+            }
+        }
     }
 
     public function createData(){
@@ -322,7 +396,7 @@ class VcPrestamos extends Component
        
     }
 
-     public function updateData(){
+    public function updateData(){
 
         $this ->validate([
             'record.fecha' => 'required',
@@ -333,6 +407,11 @@ class VcPrestamos extends Component
             'record.monto' => 'required',
             'record.cuota' => 'required',
             'record.comentario' => 'required',
+        ]);
+
+        $cab = TrPrestamosCabs::find($this->prestamoId);
+        $cab->update([
+            'cuota' => $this -> record['cuota'],
         ]);
 
         foreach ($this->cuotas as $data){
@@ -363,6 +442,36 @@ class VcPrestamos extends Component
 
         $this->dispatch('msg-grabar'); 
         return redirect()->to('/payroll/prestamos/');
+    
+    }
+
+    public function delete( $id ){
+        
+        $this->prestamoId = $id;
+        $record = TrPrestamosCabs::find($this->prestamoId);
+        $this->selectValue = $record->persona->apellidos.' '.$record->persona->nombres;
+
+        $this->dispatch('show-delete');
+
+    }
+
+    public function deleteData(){
+
+        $cab = TrPrestamosCabs::find($this->prestamoId);
+        $cab->update([
+            'estado' => 'X',
+        ]);
+
+        TrPrestamosDets::where('prestamo_id',$this->prestamoId)->update([
+            'estado' => 'X',
+        ]);
+
+        $this->dispatch('hide-delete');
+    }
+
+    public function selectTab($tab)
+    {
+        $this->activeTab = $tab;
     
     }
 

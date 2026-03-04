@@ -23,8 +23,9 @@ class TrPrestamosCabs extends Model
         'usuario',
     ];
 
-    public function personas(){
-        return $this->belongsTo('App\Models\TmPersonas');
+    public function persona()
+    {
+        return $this->belongsTo(\App\Models\TmPersonas::class, 'persona_id');
     }
 
 

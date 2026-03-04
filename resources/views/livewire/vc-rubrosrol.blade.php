@@ -19,14 +19,14 @@
                             <div class="col-xxl-5 col-sm-6">
                                 <div class="search-box">
                                     <input type="text" class="form-control search"
-                                        placeholder="Buscar por descripción..." wire:model="filters.descripcion">
+                                        placeholder="Buscar por descripción..." wire:model.live="filters.descripcion">
                                     <i class="ri-search-line search-icon"></i>
                                 </div>
                             </div>
                             <div class="col-xxl-2 col-sm-4">
                                 <div>
                                     <select class="form-control" data-choices data-choices-search-false
-                                        name="choices-single-default" id="idRegistro" wire:model="filters.registro">
+                                        name="choices-single-default" id="idRegistro" wire:model.live="filters.registro">
                                         <option value="">Todos</option>
                                         <option value="NO">Planilla</option>
                                         <option value="CA">Calculo Automatico</option>

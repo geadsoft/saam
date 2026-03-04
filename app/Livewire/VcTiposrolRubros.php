@@ -14,7 +14,7 @@ class VcTiposrolRubros extends Component
     
     use WithPagination;
     public $selectId=1, $nomtiporol="", $showEditModal=false;
-    public $rubroId, $rubroTipo, $rubroPago;
+    public $rubroRolId, $rubroTipo, $rubroPago, $tblrubros, $tiporolRubroId;
     public $arrayTipo = [
         'P' => 'Percepción',
         'D' => 'Deducción'
@@ -24,24 +24,20 @@ class VcTiposrolRubros extends Component
         'M' => 'Mensual'
     ];
 
+    public function mount(){
+        $this->selectId = 1;
+        $this->loadData();
+    }
+
     public function render()
     {
         $tbltiposrols = TmTiposrol::all();
-        $tblrubros    = TmRubrosrol::query()
-        ->leftJoin('td_tiporol_rubros as t', function($join)
-        {
-            $join->on('tm_rubrosrols.id', '=', 't.rubrosrol_id');
-            $join->on('t.tiposrol_id', '=',DB::raw($this->selectId));
-        })
-        ->select('tm_rubrosrols.*')
-        ->whereRaw("estado='A' and t.rubrosrol_id is null")->get();
-
         $tblrecords   = TdTiporolRubros::where('tiposrol_id',$this->selectId)->paginate(15);
 
         return view('livewire.vc-tiposrol-rubros',[
             'tbltiposrols' => $tbltiposrols,
             'tblrecords'   => $tblrecords,
-            'tblrubros'    => $tblrubros
+            'tblrubros'    => $this->tblrubros
         ]);
 
     }
@@ -54,27 +50,47 @@ class VcTiposrolRubros extends Component
 
         $data = TmTiposrol::find($this->selectId);
         $this->nomtiporol = $data['descripcion'];
+
+        $this->tblrubros = TmRubrosrol::query()
+        ->leftJoin('td_tiporol_rubros as t', function ($join) {
+            $join->on('tm_rubrosrols.id', '=', 't.rubrosrol_id')
+                ->where('t.tiposrol_id', $this->selectId);
+        })
+        ->select('tm_rubrosrols.*')
+        ->where('tm_rubrosrols.estado', 'A')
+        ->where(function ($query) {
+            $query->whereNull('t.rubrosrol_id');
+        })
+        ->get();
     }
+
+
 
     public function add(){
         
         $this->showEditModal = false;
-
-        $this->rubroId= 0;
+        
+        $this->rubroRolId= '';
         $this->rubroTipo= '';
         $this->rubroPago= '';    
         $this->dispatch('show-form');
         
     }
 
-    public function edit($record){
+    public function edit($id){
+
+        $registro = TdTiporolRubros::find($id);
         
+        $this->tiporolRubroId = $registro->id; 
+        $this->rubroRolId   = $registro->rubrosrol_id; 
+        $this->rubroTipo = $registro->tipo;
+        $this->rubroPago = $registro->remuneracion;
         $this->showEditModal = true;
-        $this->rubroId   = $record['rubrosrol_id'];
-        $this->rubroTipo = $record['tipo'];
-        $this->rubroPago = $record['remuneracion'];
+        
+        $this->tblrubros = TmRubrosrol::query()
+        ->where('tm_rubrosrols.estado', 'A')
+        ->get();
        
-        $this->selectId = $record['id'];
         $this->dispatch('show-form');
 
     }
@@ -82,14 +98,14 @@ class VcTiposrolRubros extends Component
     public function createData(){
         
         $this ->validate([
-            'rubroId'   => 'required',
+            'rubroRolId'   => 'required',
             'rubroTipo' => 'required',
             'rubroPago' => 'required',
         ]);
 
         TdTiporolRubros::Create([
             'tiposrol_id' => $this -> selectId,
-            'rubrosrol_id' => $this -> rubroId,
+            'rubrosrol_id' => $this -> rubroRolId,
             'tipo' => $this -> rubroTipo,
             'remuneracion' => $this -> rubroPago,
             'usuario' => auth()->user()->name,
@@ -97,19 +113,20 @@ class VcTiposrolRubros extends Component
 
         $this->dispatch('hide-form', ['message'=> 'added successfully!']);
         $this->dispatch('msg-grabar');  
+        $this->rubroRolId = '';
         
     }
 
     public function updateData(){
 
         $this ->validate([
-            'rubroId'   => 'required',
+            'rubroRolId'   => 'required',
             'rubroTipo' => 'required',
             'rubroPago' => 'required',
         ]);        
         
 
-        $record = TdTiporolRubros::find($this->selectId);
+        $record = TdTiporolRubros::find($this->tiporolRubroId);
         $record->update([
             'tipo' => $this -> rubroTipo,
             'remuneracion' => $this -> rubroPago,
@@ -117,7 +134,7 @@ class VcTiposrolRubros extends Component
             
         $this->dispatch('hide-form');
         $this->dispatch('msg-actualizar');
-
+        $this->rubroRolId = '';
         
     }
 

@@ -1,5 +1,5 @@
 <div>
-    <form id="addrubro-form" autocomplete="off" wire:submit.prevent="{{ $showEditModal ? 'updateData' : 'createData' }}">
+    <form id="addrubro-form" autocomplete="off" wire:submit.prevent="{{ $editRecno ? 'updateData' : 'createData' }}">
         <div class="row">
             <div class="col-lg-8">
                     <div class="card">

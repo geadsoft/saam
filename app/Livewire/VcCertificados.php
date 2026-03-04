@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Livewire;
+use App\Exports\CertificadosExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\Exportable;
+
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
@@ -110,7 +114,9 @@ class VcCertificados extends Component
             })
             ->where('periodo',$this->filters['periodo'])
             ->where('mes',$this->filters['mes'])
-            //->where('fabrica', 'like', '%CPO%')
+            ->when($this->filters['producto'],function($query){
+                return $query->where('v.item',$this->filters['producto']);
+            })
             ->orderByRaw('FechaSalida desc,Documento desc')
             ->paginate(6);
 
@@ -178,6 +184,17 @@ class VcCertificados extends Component
         }
 
         $this->dispatch('hide-delete');
+    }
+
+    public function exportExcel(){
+
+        if ( $this->filters['tab'] == 2){
+            return;
+        }
+
+        $data = json_encode($this->filters);
+        return Excel::download(new CertificadosExport($data), 'Certificados de Calidad.xlsx');
+
     }
 
 }   

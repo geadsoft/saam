@@ -28,9 +28,18 @@
     <script src="{{ URL::asset('/assets/js/app.min.js') }}"></script>
 
     <script>
-         window.addEventListener('msg-grabar', event => {
+        window.addEventListener('msg-grabar', event => {
             swal("¡Grabado!", "Su registro ha sido grabado exitosamente!", "success");
         })
+
+        window.addEventListener('show-delete', event => {
+            $('#deleteRecno').modal('show');
+        })
+
+        window.addEventListener('hide-delete', event => {
+            $('#deleteRecno').modal('hide');
+        })
+
     </script>
     
 @endsection

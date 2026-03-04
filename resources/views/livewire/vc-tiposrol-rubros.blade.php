@@ -17,13 +17,13 @@
                                                 <select class="form-select"
                                                     name="choices-single-default" id="cmbnivel" wire:model.defer ="selectId" wire:change='loadData()'>
                                                      @foreach ($tbltiposrols as $tipo)
-                                                        <option value="{{$tipo->id}}" selected>{{$tipo->descripcion}}</option>
+                                                        <option value="{{$tipo->id}}">{{$tipo->descripcion}}</option>
                                                      @endforeach                                
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="flex-shrink-0">
-                                            <button class="btn btn-success" wire:click.prevent="add()" data-bs-toggle="modal" data-bs-target="" ><i class="ri-add-line align-bottom me-1"></i>Agregar Rubro</button>
+                                            <button class="btn btn-success" wire:click.prevent="add()" data-bs-target="" ><i class="ri-add-line align-bottom me-1"></i>Agregar Rubro</button>
                                         </div>
                                     </div>
                                     <div class="card-body border border-dashed border-end-0 border-start-0 mb-3">
@@ -50,7 +50,7 @@
                                                         <ul class="list-inline hstack gap-2 mb-0">
                                                             <li class="list-inline-item edit" data-bs-toggle="tooltip"
                                                                 data-bs-trigger="hover" data-bs-placement="top" title="Edit">
-                                                                <a href="" wire:click.prevent="edit({{ $record }})">
+                                                                <a href="" wire:click.prevent="edit({{ $record->id }})">
                                                                     <i class="ri-pencil-fill fs-16"></i>
                                                                 </a>
                                                             </li>
@@ -87,27 +87,29 @@
                         </div>
                         
                         <!-- end tab content -->
-                        <div wire.ignore.self class="modal fade zoomIn" id="showModal" tabindex="-1" aria-labelledby="createFileModalLabel" aria-hidden="true">
+                        <div wire:ignore.self class="modal fade zoomIn" id="showModal" tabindex="-1" aria-labelledby="createFileModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content border-0">
-                                    <div class="modal-header p-3 bg-light">
-                                        <h5 class="modal-title" id="createFileModalLabel">Agregar Rubros</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" id="addFileBtn-close" aria-label="Close"></button>
+                                    <div class="modal-header p-3" style="background-color: #024750;">
+                                        <h5 class="modal-title text-white" id="createFileModalLabel">Agregar Rubros</h5>
+                                        <button type="button" class="btn border-0" data-bs-dismiss="modal">
+                                            <i class="mdi mdi-close-thick text-danger fs-4"></i>
+                                        </button>
                                     </div>
                                     <div class="modal-body">
                                         <form autocomplete="off" class="needs-validation createfile-form" id="createfile-form" wire:submit.prevent="{{ $showEditModal ? 'updateData' : 'createData' }}">
                                             <div class="mb-4">
-                                                <label for="filename-input" class="form-label">Rubro</label>
-                                                <select type="select" class="form-select" data-trigger name="rubro-select" wire:model.defer="rubroId">
+                                                <label class="form-label">Rubro</label>
+                                                <select type="select" class="form-select" name="rubro-select" wire:model.defer="rubroRolId" wire:key="select-rubro-{{ $rubroRolId }}">
                                                 <option value="">Seleccione Rubro</option>
-                                                @foreach ($tblrubros as $rubro)
-                                                    <option value="{{$rubro->id}}">{{$rubro->descripcion}}</option>
+                                                @foreach ($tblrubros as $data)
+                                                    <option value="{{$data->id}}">{{$data->descripcion}}</option>
                                                 @endforeach                                                
                                                 </select>                                                
                                             </div>
                                             <div class="mb-4">
                                                 <label for="filename-input" class="form-label">Tipo</label>
-                                                <select type="select" class="form-select" data-trigger name="record.tipo" wire:model.defer="rubroTipo" required>
+                                                <select type="select" class="form-select" name="record.tipo" wire:model.defer="rubroTipo" required>
                                                     <option value="">Seleccione Tipo</option>
                                                     <option value="P">Percepción</option>
                                                     <option value="D">Deducción</option>
@@ -115,7 +117,7 @@
                                             </div>
                                             <div class="mb-4">
                                                 <label for="filename-input" class="form-label">Remuneración</label>
-                                                <select type="select" class="form-select" data-trigger id="cmbtipo" wire:model.defer="rubroPago" required>
+                                                <select type="select" class="form-select" id="cmbtipo" wire:model.defer="rubroPago" required>
                                                     <option value="">Seleccione tipo de remuneración</option>
                                                     <option value="Q">Quincenal</option>
                                                     <option value="M">Mensual</option>
@@ -123,8 +125,11 @@
                                             </div>
 
                                             <div class="hstack gap-2 justify-content-end">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ri-close-line align-bottom"></i> Close</button>
-                                                <button type="submit" class="btn btn-success" id="addNewFile">Grabar</button>
+                                                <button type="button" style="background-color: #fc9d5e;" class="btn" data-bs-dismiss="modal">
+                                                    Cerrar
+                                                </button>
+                                                <button type="submit" style="background-color: #024750;" class="btn" id="addNewFile">
+                                                    <span class="text-white">Grabar</span></button>
                                             </div>
                                         </form>
                                     </div>

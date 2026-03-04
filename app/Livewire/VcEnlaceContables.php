@@ -61,7 +61,8 @@ class VcEnlaceContables extends Component
     }
         
     public function render()
-    {
+    {   
+
         if ($this->edit==false){
             $tblrubros    = TmRubrosrol::query()
             ->leftJoin('tm_cuentas_contables as t', function($join)

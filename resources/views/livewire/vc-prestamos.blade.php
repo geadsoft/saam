@@ -1,5 +1,5 @@
 <div>
-    <form autocomplete="off" wire:submit.prevent="{{ 'createData' }}" id="encashment_form">
+    <form autocomplete="off" wire:submit.prevent="{{ $editData ? 'updateData' : 'createData' }}" id="encashment_form">
         <div class="row">
             <div class="col-lg-7">
                 <div class="row">
@@ -100,15 +100,11 @@
                                 <tr>
                                     <td>{{$prestamo->apellidos}} {{$prestamo->nombres}}</td>
                                     <td>{{date('d/m/Y', strtotime($prestamo->fecha))}}</td>
-                                    <td>{{$prestamo->id}}</td>
+                                    <td>{{ str_pad($prestamo->id, 7, '0', STR_PAD_LEFT) }}</td>
                                     <td class="text-end">${{number_format($prestamo->monto,2)}}</td>
                                     <td class="text-end">{{ ($prestamo->pagos ?? 0) > 0 ? $prestamo->pagos : 0 }}/{{$prestamo->cuota}}</td>
                                     <td class="text-center">
-                                        @if($prestamo->estado)
-                                        <span class="badge badge-soft-success text-uppercase">Activo</span>
-                                        @else
-                                        <span class="badge badge-soft-warning text-uppercase">Cancelado</span>
-                                        @endif
+                                        <span class="badge {{$estado[$prestamo->estado]['color']}} text-uppercase">{{$estado[$prestamo->estado]['estado']}}</span>
                                     </td>
                                     <td class="text-center">
                                         <ul class="list-inline hstack gap-2 mb-0">
@@ -118,6 +114,7 @@
                                                     <i class="las la-eye fs-22 text-info"></i>
                                                 </a>
                                             </li>
+                                            @if($prestamo->estado!='X')
                                             <li class="list-inline-item edit" data-bs-toggle="tooltip"
                                                 data-bs-trigger="hover" data-bs-placement="top" title="Editar">
                                                 <a href="" wire:click.prevent="edit({{ $prestamo }})">
@@ -132,6 +129,7 @@
                                                     <i class="ri-delete-bin-5-fill fs-16"></i>
                                                 </a>
                                             </li>
+                                            @endif
                                         </ul>
                                     </td>
                                 </tr>
@@ -161,22 +159,22 @@
                                                 <ul class="nav nav-tabs-custom rounded card-header-tabs nav-justified border-bottom-0 mx-n3"
                                                     role="tablist">
                                                     <li class="nav-item" role="presentation">
-                                                        <a class="nav-link active" data-bs-toggle="tab"
-                                                            href="#cryptoBuy" role="tab" aria-selected="false"
-                                                            tabindex="-1">
+                                                        <a class="nav-link {{ $activeTab == 'tabCab' ? 'active' : '' }}"
+                                                            wire:click="selectTab('tabCab')"
+                                                            href="javascript:void(0)">
                                                             Préstamo
                                                         </a>
                                                     </li>
                                                     <li class="nav-item" role="presentation">
-                                                        <a class="nav-link" data-bs-toggle="tab" href="#cryptoSell"
-                                                            role="tab" aria-selected="true">
+                                                        <a class="nav-link {{ $activeTab == 'tabDet' ? 'active' : '' }}" wire:click="selectTab('tabDet')"
+                                                            href="javascript:void(0)">
                                                             Detalle Cuotas
                                                         </a>
                                                     </li>
                                                 </ul>
                                             </div>
                                             <div class="tab-content text-muted">
-                                                <div class="tab-pane active show" id="cryptoBuy" role="tabpanel">
+                                                <div class="tab-pane {{ $activeTab == 'tabCab' ? 'active show' : '' }}" id="cryptoBuy" role="tabpanel">
                                                     <fieldset {{$fieldset}}>
                                                     <div class="p-3">
                                                         <div class="row">
@@ -239,7 +237,8 @@
                                                             <div class="col-6">
                                                                 <select type="select" class="form-select" data-trigger
                                                                     id="cmbperiodo"
-                                                                    wire:model.defer="record.periodosrol_id" required>
+                                                                    wire:model.defer="record.periodosrol_id" 
+                                                                    wire:key="select-periodo-{{ $record['periodosrol_id'] }}" required>
                                                                     <option value="">-- Periodo --</option>
                                                                     @foreach ($tblperiodos as $periodo)
                                                                     <option value="{{$periodo->id}}">
@@ -339,7 +338,7 @@
                                                     </div>
                                                     </fieldset>
                                                 </div>
-                                                <div class="tab-pane" id="cryptoSell" role="tabpanel">
+                                                <div class="tab-pane {{ $activeTab == 'tabDet' ? 'active' : '' }}" id="cryptoSell" role="tabpanel">
                                                     <div class="p-3">
                                                         <fieldset {{$fieldset}}>
                                                         <div class="table-responsive  mb-3">
@@ -358,11 +357,30 @@
                                                                         @foreach ($cuotas as $key => $cuota)
                                                                         <tr>
                                                                             <td>{{$cuota['cuota']}}</td>
+                                                                            @if (($this->editData) && ($cuota['estado']=='P'))
+                                                                            <td>
+                                                                                <select type="select" class="form-select form-select-sm"
+                                                                                id="fecha_cuota" 
+                                                                                wire:model.live="cuotas.{{$key}}.fecha"
+                                                                                wire:key="select-fcuota-{{ $key }}"
+                                                                                @disabled($cuota['estado'] == 'C')
+                                                                                required>
+                                                                                @foreach ($cuotas as $nro => $fcuota)
+                                                                                    @if($fcuota['estado'] == 'P' && $nro >= $cuota['cuota'])
+                                                                                        <option value="{{ $fcuota['fecha'] }}">
+                                                                                            {{date('d/m/Y', strtotime($fcuota['fecha']))}}
+                                                                                        </option>
+                                                                                    @endif
+                                                                                @endforeach 
+                                                                                </select>                                                                                
+                                                                            </td>
+                                                                            @else
                                                                             <td>{{date('d/m/Y', strtotime($cuota['fecha']))}}</td>
+                                                                            @endif
                                                                             <td>
                                                                                 <input type="number"
                                                                                 class="form-control form-control-sm product-price"
-                                                                                id="txtvalor" step="0.01" wire:model.defer="cuotas.{{$key}}.valor" required>
+                                                                                id="txtvalor" step="0.01" wire:model.defer="cuotas.{{$key}}.valor"  {{ $cuota['estado'] == 'C' ? 'disabled' : '' }} required>
                                                                             </td>
                                                                             <td>
                                                                                 @if($cuota['estado']=='P')
@@ -420,6 +438,31 @@
         </div>-->
             </div>
         </div>
+        <div wire.ignore.self class="modal fade flip" id="deleteRecno" tabindex="-1" aria-hidden="true" wire:model='selectId'>
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body p-5 text-center">
+                        <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
+                            colors="primary:#024750,secondary:#f06548" style="width:90px;height:90px">
+                        </lord-icon>
+                        <div class="mt-4 text-center">
+                            <h4>Estás a punto de anular el prestamo de: {{ $selectValue }}</h4>
+                            <p class="text-muted fs-15 mb-4">Anular el registro afectará toda su 
+                            información de nuestra base de datos.</p>
+                            <div class="hstack gap-2 justify-content-center remove">
+                                <button class="btn btn-link link-success fw-medium text-decoration-none"
+                                    data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i>
+                                    Cerrar </button>
+                                <button style= "background-color: #024750;" class="btn" id="delete-record" wire:click="deleteData()">
+                                    <span style="color:white"> Si, Anular </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </form>
 
 

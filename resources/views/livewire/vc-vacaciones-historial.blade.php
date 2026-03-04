@@ -149,8 +149,9 @@
                                                     </tr>
                                                     @foreach($periodo->movimientos as $mov)
                                                     <tr>
-                                                        <td>    
-                                                            <span class="badge badge-soft-primary text-uppercase fs-13">S</span> {{ date('d/m/Y', strtotime($mov->solicitud->fecha)) }} - 
+                                                        <td class="fs-12">   
+                                                            <span class="badge badge-soft-primary text-uppercase fs-13">S</span>
+                                                            <strong>del</strong> {{ date('d/m/Y', strtotime($mov->solicitud->fecha_empieza)) }} <strong>al</strong> {{ date('d/m/Y', strtotime($mov->solicitud->fecha_termina)) }} - 
                                                             <span class="badge badge-soft-success text-uppercase fs-13">A</span> {{ date('d/m/Y', strtotime($mov->fecha)) }}
                                                         </td>
                                                         <td>Descuento</td>

@@ -58,6 +58,8 @@ class VcPlanillaRubros extends Component
         ->where('tm_periodosrols.id',$this->periodoId)
         ->first();
 
+        $this->fecha = date('Y-m-d',strtotime($tiporol->fechafin));
+
         $hextras = TdHorasExtras::query()
         ->select(
             'persona_id',
@@ -187,71 +189,94 @@ class VcPlanillaRubros extends Component
         return number_format($total, 2, '.', '');
     }
 
-    public function createData(){
-
-        $this ->validate([
+    public function createData()
+    {
+        $this->validate([
             'periodoId' => 'required',
             'fecha' => 'required',
         ]);
-        
-        if (empty($this->tblrecords)){
 
+        if (empty($this->tblrecords)) {
             $this->periodoId = '';
             $this->dispatch('msg-alerta');
             return;
-            
         }
 
         $tiporol = TmPeriodosrol::find($this->periodoId);
         $this->loadRubros();
 
-        $dataRow=[
-            'fecha' => "",
-            'tiposrol_id' => 0,
-            'periodosrol_id' => 0,
-            'persona_id' => 0,
-            'rubrosrol_id' => 0,
-            'valor' => 0,
-            'usuario' => "",
-            'estado' => ""
-        ];
+        // 🔹 Obtener registros existentes
+        $existentes = TdPlanillaRubros::where('tiposrol_id', $tiporol->tiporol_id)
+            ->where('periodosrol_id', $this->periodoId)
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->persona_id . '-' . $item->rubrosrol_id;
+            });
 
+        $detalle = [];
 
-        foreach ($this->tblrecords as $index => $data)
-        {   
-            if ($index=='ZZ') {
-                continue;
+        foreach ($this->tblrecords as $personaId => $data) {
+
+            if ($personaId == 'ZZ') continue;
+
+            foreach ($this->rubros as $rubro) {
+
+                $valorNuevo = $this->tblrecords[$personaId][$rubro->id] ?? 0;
+                $key = $personaId . '-' . $rubro->id;
+
+                if (isset($existentes[$key])) {
+
+                    // 🔹 Solo actualizar si cambió el valor
+                    if ($existentes[$key]->valor != $valorNuevo) {
+
+                        $detalle[] = [
+                            'id' => $existentes[$key]->id,
+                            'valor' => $valorNuevo,
+                            'usuario' => auth()->user()->name,
+                            'updated_at' => now(),
+                        ];
+                    }
+
+                } else {
+
+                    // 🔹 Insertar si no existe
+                    $detalle[] = [
+                        'fecha' => $this->fecha,
+                        'tipo' => 'P',
+                        'tiposrol_id' => $tiporol->tiporol_id,
+                        'periodosrol_id' => $this->periodoId,
+                        'persona_id' => $personaId,
+                        'rubrosrol_id' => $rubro->id,
+                        'valor' => $valorNuevo,
+                        'usuario' => auth()->user()->name,
+                        'estado' => 'G',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
             }
-
-            foreach ($this->rubros as $rubro){
-
-                    $valor = $this->tblrecords[$index][$rubro->id];
-
-                    $dataRow['fecha'] = $this->fecha;
-                    $dataRow['tipo'] = 'P';
-                    $dataRow['tiposrol_id'] = $tiporol['tiporol_id'];
-                    $dataRow['periodosrol_id'] = $this->periodoId;
-                    $dataRow['persona_id'] = $index;
-                    $dataRow['rubrosrol_id'] = $rubro->id;
-                    $dataRow['valor'] = ($valor == null) ? 0 : $valor;
-                    $dataRow['usuario'] = auth()->user()->name;
-                    $dataRow['estado']  = 'G';
-
-                array_push($this->detalle,$dataRow);
-            }
-                    
         }
 
-        TdPlanillaRubros::query()
-        ->where('tiposrol_id',$tiporol['tiporol_id'])
-        ->where('periodosrol_id',$this->periodoId)
-        ->delete();
-        
-        TdPlanillaRubros::insert($this->detalle);       
+        // 🔹 Separar inserts y updates
+        $updates = collect($detalle)->whereNotNull('id');
+        $inserts = collect($detalle)->whereNull('id');
+
+        foreach ($updates as $update) {
+            TdPlanillaRubros::where('id', $update['id'])
+                ->update([
+                    'valor' => $update['valor'],
+                    'usuario' => $update['usuario'],
+                    'updated_at' => $update['updated_at'],
+                ]);
+        }
+
+        if ($inserts->count() > 0) {
+            TdPlanillaRubros::insert($inserts->toArray());
+        }
+
         $this->dispatch('msg-grabar');
 
         return redirect()->to('/payroll/planilla');
-
     }
 
    

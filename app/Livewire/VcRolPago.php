@@ -604,6 +604,18 @@ class VcRolPago extends Component
         $fecha   = strtotime($this->fecha);
         $periodo = TmPeriodosrol::find($this->periodoId);
         $detalle = [];
+
+        $totalIngresos = collect($this->detalle)
+        ->sum(function ($item) {
+            return (float)($item['ingresos'] ?? 0) 
+                + (float)($item['otingresos'] ?? 0);
+        });
+        
+        $totalEgresos = collect($this->detalle)
+        ->sum(function ($item) {
+            return (float)($item['egresos'] ?? 0) 
+                + (float)($item['otegresos'] ?? 0);
+        });
     
         $recno = TcRolPagos::where([
             ['tiposrol_id',$this->tiporolid],
@@ -614,9 +626,9 @@ class VcRolPago extends Component
 
             $rolpago = TcRolPagos::find($recno['id']);
             $rolpago->update([
-                'ingresos' => $this->totalRol['totIng'],
-                'egresos' => $this->totalRol['totEgr'],
-                'total' => $this->totalRol['total'],
+                'ingresos' => $totalIngresos,
+                'egresos' => $totalEgresos,
+                'total' => $totalIngresos-$totalEgresos,
             ]);
 
         } else {
@@ -628,9 +640,9 @@ class VcRolPago extends Component
                 'tiposrol_id' => $this->tiporolid,
                 'periodosrol_id' =>$this->periodoId,
                 'remuneracion'=> $periodo['remuneracion'],
-                'ingresos' => $this->totalRol['totIng'],
-                'egresos' => $this->totalRol['totEgr'],
-                'total' => $this->totalRol['total'],
+                'ingresos' => $totalIngresos,
+                'egresos' => $totalEgresos,
+                'total' => $totalIngresos-$totalEgresos,
                 'usuario' => auth()->user()->name,
                 'estado' => 'C',
             ]);

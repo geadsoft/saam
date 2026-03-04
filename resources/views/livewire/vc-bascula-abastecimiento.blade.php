@@ -7,8 +7,6 @@
                         <h5 class="card-title mb-0 flex-grow-1">Pesos Realizados</h5>
                         <div class="flex-shrink-0">
                             <div class="d-flex flex-wrap gap-2">
-                                <!--<a href="" class="btn btn-danger add-btn" target="_blank"><i class="ri-add-line align-bottom me-1"></i><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Crear tickets</font></font></a>-->
-                                <!--<button class="btn btn-soft-danger" id="remove-actions" onclick="deleteMultiple()"><i class="ri-delete-bin-2-line"></i></button>-->
                                 <a href="" wire:click.prevent="exportExcel()" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"><i class="ri-file-excel-2-line align-bottom fs-22"></i></a>
                             </div>
                         </div>

@@ -160,7 +160,7 @@ class ImpresionController extends Controller
             '30102004'
         ];
 
-
+        
         
         if (in_array($certificado->producto, $arrext)){
 

@@ -248,7 +248,6 @@
                     <div wire.ignore.self class="modal fade" id="showModalRubros" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg" >
                             <div class="modal-content modal-content border-0">
-                                
                                 <div class="modal-header p-3 bg-light">
                                     <h5 class="modal-title" id="exampleModalLabel">
                                         <span> {{$titulo}} &nbsp;</span>
@@ -302,10 +301,6 @@
                             </div>
                         </div>
                     </div>
-
-                    
-                    
-
                 </div>
             </div>
             <!--end card--> 
@@ -318,7 +313,7 @@
             </div>                        
             <div class="col-md-auto ms-auto">
                 <div class="hstack text-nowrap gap-2">
-                    @if ($this->editar == 'S' && $this->nomina['estado'] == 'C' )
+                    @if ($this->nomina['estado'] == 'C' )
                         <button type="submit" class="btn btn-info w-sm" ><i class="ri-save-3-fill align-bottom me-1"></i>Procesar</button>
                         <button type="button" wire:click.prevent="deleteRol()" class="btn btn-warning w-sm"><i class="ri-delete-back-2-line align-bottom me-1"></i>Reversar</button>
                     @endif

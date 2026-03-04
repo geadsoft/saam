@@ -19,7 +19,7 @@
                             <div class="col-xxl-2 col-sm-4">
                                 <div>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="periodo"  wire:model="filters.periodo">
+                                        name="choices-single-default" id="periodo"  wire:model.live="filters.periodo">
                                         <option value="" selected>Periodo</option>
                                         @foreach($periodos as $periodo)
                                             <option value="{{$periodo->periodo}}">{{$periodo->periodo}}</option>
@@ -30,7 +30,7 @@
                             <div class="col-xxl-2 col-sm-4">
                                 <div>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="filtermes" wire:model="filters.mes">
+                                        name="choices-single-default" id="filtermes" wire:model.live="filters.mes">
                                         <option value="" selected>Mes</option>
                                         @for ($i =1; $i <= 12; $i++)
                                             <option value="{{$i}}">{{ $meses[$i] }}</option>
@@ -42,7 +42,7 @@
                             <div class="col-xxl-2 col-sm-4">
                                 <div>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="proceso"  wire:model="filters.proceso">
+                                        name="choices-single-default" id="proceso"  wire:model.live="filters.proceso">
                                         <option value="" selected>Proceso</option>
                                         <option value="Q">Quincenal</option>
                                         <option value="M">Mensual</option>
@@ -53,7 +53,7 @@
                             <div class="col-xxl-2 col-sm-4">
                                 <div>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="estado"  wire:model="filters.estado">
+                                        name="choices-single-default" id="estado"  wire:model.live="filters.estado">
                                         <option value="" selected>Estado</option>
                                         <option value="G">Generado</option>
                                         <option value="A">Aprobado</option>

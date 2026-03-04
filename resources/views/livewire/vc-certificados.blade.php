@@ -6,10 +6,9 @@
                     <div class="d-flex align-items-center">
                         <h5 class="card-title mb-0 flex-grow-1">Historial de Certificados</h5>
                         <div class="flex-shrink-0">
-                            <!--<div class="d-flex flex-wrap gap-2">
-                                <a href="/bascula-compra/peso-bruto" class="btn btn-danger add-btn" target="_blank"><i class="ri-add-line align-bottom me-1"></i><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Crear tickets</font></font></a>
-                                <button class="btn btn-soft-danger" id="remove-actions" onclick="deleteMultiple()"><i class="ri-delete-bin-2-line"></i></button>
-                            </div>-->
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="" wire:click.prevent="exportExcel()" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"><i class="ri-file-excel-2-line align-bottom fs-22"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -46,7 +45,7 @@
                                 <div>
                                     <label for="cmbtiporol" class="form-label">Producto</label>
                                     <select class="form-select" data-choices data-choices-search-false
-                                        name="choices-single-default" id="cmbproducto" wire:model="filters.producto">
+                                        name="choices-single-default" id="cmbproducto" wire:model.live="filters.producto">
                                         <option value="" selected>All</option>
                                         @foreach ($tblproductos as $producto)
                                         <option value="{{$producto->codigo}}">{{$producto->nombre}}</option>

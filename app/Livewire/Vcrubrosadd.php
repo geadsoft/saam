@@ -15,8 +15,8 @@ class Vcrubrosadd extends Component
 
     use WithPagination;
 
-    public $AddNew = false;
-    public $selectId, $selectValue, $rubrobaseId, $showEditModal;
+    public $editRecno = false;
+    public $selectId, $selectValue, $rubrobaseId;
     public $record;
     public $baseRubros = [];
     public $rubros = [
@@ -33,7 +33,7 @@ class Vcrubrosadd extends Component
         if ($rubro_id>0){
             $this->selectId = $rubro_id;
             $this->loadData(); 
-            $this->AddNew = true;  
+            $this->editRecno = true;  
         } else {
             $this->add();
         }
@@ -81,8 +81,7 @@ class Vcrubrosadd extends Component
         $this->record['imprimerol1'] = ($this->record['imprimerol1']==1) ? true : false;
         $this->record['imprimerol2'] = ($this->record['imprimerol2']==1) ? true : false;
         $this->record['imprimerol3'] = ($this->record['imprimerol3']==1) ? true : false;
-
-       
+        $this->record['regplanilla'] = ($this->record['regplanilla']==1) ? true : false;
 
         if (empty($tblbases)) {
             $this->newRecno();

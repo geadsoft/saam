@@ -81,6 +81,7 @@
             </table>
 
             <div style="text-align: center; font-weight: bold; font-size: 19px;">CERTIFICADO DE CALIDAD</div>
+            
             <div style="padding: 15px;"></div>
 
             <table cellpadding="0" cellspacing="0" width="70%">
