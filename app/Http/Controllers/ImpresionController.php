@@ -201,15 +201,15 @@ class ImpresionController extends Controller
         
         $diario= TcComprobanteRol::query()
         ->join('tc_rol_pagos as r','r.id','=','tc_comprobante_rols.rolpago_id')
-        ->join('tm_tiposrols as t','r.id','=','r.tiposrol_id')
-        ->where('tc_comprobante_rols.id',$this->comprobanteId)
+        ->join('tm_tiposrols as t','t.id','=','r.tiposrol_id')
+        ->where('tc_comprobante_rols.id',$id)
         ->select('tc_comprobante_rols.*','t.descripcion as tiporol','r.remuneracion')
-        ->get();
+        ->first();
 
         $detalle = TdComprobanteRol::query()
         ->join('view_cuentas_contables as c','c.cuenta','=','td_comprobante_rols.cuenta')
         ->select('td_comprobante_rols.*','c.descripcion')
-        ->where('comprobante_id',$this->comprobanteId)
+        ->where('comprobante_id',$id)
         ->get();
 
         $pdf = PDF::loadView('reports.diario_contable', compact('diario','detalle','mes'))->setPaper('a4', 'portrait');
